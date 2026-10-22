@@ -1,0 +1,2481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MapleStory Classic Builds</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%81%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface-2: #efebe3;
+  --text: #1f1c17;
+  --muted: #6d675c;
+  --border: #e1dbcf;
+  --maple: #d9600b;
+  --bandit: #b91c1c;
+  --assassin: #7c3aed;
+  --il: #0369a1;
+  --ok: #15803d;
+  --chart-line: #d9600b;
+  --chart-vol: #cdc5b6;
+  --bar: #b7861a; --bar-hot: #d9480f; --whisker: #3a342b; --hot-bg: #fbe7dc;
+  --on-accent: #fff;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.05);
+  --c: var(--maple);
+  color-scheme: light;
+}
+/* Dark palette: follows the OS, and also a viewer's explicit theme choice (data-theme) when the guide is shared on claude.ai. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12110e;
+    --surface: #1c1a16;
+    --surface-2: #26231e;
+    --text: #ece7dc;
+    --muted: #a39c8f;
+    --border: #35312a;
+    --maple: #fb923c;
+    --bandit: #f87171;
+    --assassin: #a78bfa;
+    --il: #38bdf8;
+    --ok: #4ade80;
+    --chart-line: #ea580c;
+    --chart-vol: #4b463d;
+    --bar: #e0b14a; --bar-hot: #ff7a45; --whisker: #e8e2d6; --hot-bg: #3a241a;
+    --on-accent: #111;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12110e;
+  --surface: #1c1a16;
+  --surface-2: #26231e;
+  --text: #ece7dc;
+  --muted: #a39c8f;
+  --border: #35312a;
+  --maple: #fb923c;
+  --bandit: #f87171;
+  --assassin: #a78bfa;
+  --il: #38bdf8;
+  --ok: #4ade80;
+  --chart-line: #ea580c;
+  --chart-vol: #4b463d;
+  --bar: #e0b14a; --bar-hot: #ff7a45; --whisker: #e8e2d6; --hot-bg: #3a241a;
+  --on-accent: #111;
+  --shadow: none;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+a { color: var(--c); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+header.top { padding: 28px 0 8px; }
+header.top h1 { margin: 0; font-size: 28px; letter-spacing: -.02em; }
+header.top h1 span { color: var(--maple); }
+header.top p { margin: 4px 0 0; color: var(--muted); }
+
+nav.tabs {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  margin-top: 16px;
+}
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs button {
+  appearance: none; border: 0; background: none; color: var(--muted);
+  font: inherit; font-weight: 600; padding: 12px 14px; cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent;
+}
+nav.tabs button:hover { color: var(--text); }
+nav.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--tc, var(--maple)); }
+nav.tabs .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--tc); margin-right: 7px; vertical-align: 1px; }
+
+main { padding: 24px 0 64px; }
+section.tab { display: none; }
+section.tab.active { display: block; }
+[data-c="bandit"] { --c: var(--bandit); }
+[data-c="assassin"] { --c: var(--assassin); }
+[data-c="il"] { --c: var(--il); }
+
+h2 { font-size: 22px; margin: 36px 0 6px; letter-spacing: -.01em; }
+h2:first-child { margin-top: 0; }
+h3 { font-size: 16px; margin: 28px 0 8px; }
+.lead { font-size: 16px; margin: 0 0 16px; max-width: 75ch; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); padding: 18px;
+}
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+.class-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.class-head h2 { margin: 0; color: var(--c); font-size: 26px; }
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  background: color-mix(in srgb, var(--c) 14%, transparent); color: var(--c);
+}
+
+/* launch cards */
+.launch { display: flex; flex-direction: column; gap: 2px; }
+.launch .label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.launch .when { font-size: 20px; font-weight: 700; }
+.launch .count { color: var(--maple); font-weight: 600; }
+
+/* facts */
+dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0; }
+dl.facts dt { color: var(--muted); font-weight: 600; }
+dl.facts dd { margin: 0; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 460px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+tr.hl td { background: color-mix(in srgb, var(--c) 10%, transparent); }
+tr.hl td:first-child { box-shadow: inset 3px 0 0 var(--c); }
+td strong { color: var(--text); }
+
+ul.tight { margin: 6px 0 0; padding-left: 20px; }
+ul.tight li { margin: 4px 0; }
+
+/* tracker */
+.tracker { border-top: 4px solid var(--c); }
+.lvl-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.lvl-box { display: flex; align-items: center; gap: 8px; }
+.lvl-box button {
+  width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); font: 600 20px/1 system-ui; cursor: pointer;
+}
+.lvl-box button:hover { border-color: var(--c); }
+.lvl-num { min-width: 92px; text-align: center; }
+.lvl-num .k { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+.lvl-num input {
+  width: 80px; text-align: center; font: 800 30px/1.1 system-ui; color: var(--c);
+  background: none; border: 0; padding: 0; -moz-appearance: textfield;
+}
+.lvl-num input::-webkit-inner-spin-button, .lvl-num input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=range] { flex: 1; min-width: 180px; accent-color: var(--c); }
+.phase { font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); color: var(--muted); font: 600 13px system-ui; padding: 8px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--c); color: var(--on-accent); }
+
+.tile { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+.tile h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.tile p { margin: 0; font-weight: 600; }
+.tile p + p { margin-top: 6px; }
+.tile small { display: block; color: var(--muted); margin-top: 6px; font-size: 13px; }
+.alert { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: color-mix(in srgb, var(--c) 12%, transparent); font-weight: 600; }
+
+/* gantt */
+.gantt { margin-top: 8px; }
+.g-axis, .g-row { display: grid; grid-template-columns: 150px 1fr; align-items: center; }
+.g-axis .g-track { position: relative; height: 22px; }
+.tick { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); top: 2px; }
+.g-body { position: relative; }
+.g-row { min-height: 30px; border-top: 1px dashed var(--border); }
+.g-label { font-size: 13px; font-weight: 600; padding-right: 10px; }
+.g-track { position: relative; height: 30px; }
+.g-bar { position: absolute; top: 8px; height: 14px; border-radius: 4px; background: color-mix(in srgb, var(--c) 30%, transparent); }
+.g-bar.done { background: var(--c); }
+.g-bar.now { background: var(--c); outline: 2px solid color-mix(in srgb, var(--c) 40%, transparent); outline-offset: 2px; }
+.g-overlay { position: absolute; top: 0; bottom: 0; left: 150px; right: 0; pointer-events: none; }
+.g-now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--text); }
+.g-now::after {
+  content: attr(data-l); position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; font-weight: 700; white-space: nowrap; padding: 0 5px; border-radius: 4px;
+  background: var(--text); color: var(--surface);
+}
+.gantt { padding-bottom: 18px; }
+.g-mark { position: absolute; top: 0; bottom: 0; border-left: 2px dashed var(--c); }
+.g-mark span {
+  position: absolute; top: 2px; left: 4px; font-size: 11px; font-weight: 700; color: var(--c); white-space: nowrap;
+  background: var(--surface); padding: 0 4px; border-radius: 4px; border: 1px solid var(--c);
+}
+@media (max-width: 600px) {
+  .g-axis, .g-row { grid-template-columns: 104px 1fr; }
+  .g-overlay { left: 104px; }
+  .g-label { font-size: 12px; }
+}
+
+/* checklist */
+.check { list-style: none; padding: 0; margin: 0; }
+.check li { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.check li:first-child { border-top: 0; }
+.check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--maple); flex: none; }
+.check label { cursor: pointer; }
+.check input:checked + label { color: var(--muted); text-decoration: line-through; }
+
+.rec { border-left: 4px solid var(--maple); }
+
+/* What to sell finder */
+.g3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.hl-card h4 { margin: 0 0 4px; font-size: 15px; }
+.hl-card p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.hl-card ol { margin: 0; padding-left: 20px; }
+.hl-card li { margin: 3px 0; font-size: 14px; }
+.hl-card li span { color: var(--muted); font-size: 12px; }
+.sell-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 6px 0 10px; }
+.sell-controls input[type=search] {
+  flex: 1; min-width: 220px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font: inherit;
+}
+.sell-controls select { margin-left: 6px; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+#sell-cats button[aria-pressed="true"], #nx-crate-pick button[aria-pressed="true"] { background: var(--maple); }
+.sell-wrap { max-height: 640px; overflow: auto; }
+.sell-wrap thead th { position: sticky; top: 0; z-index: 1; }
+.badge { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); white-space: nowrap; }
+tr.thin td { color: var(--muted); }
+/* price trends: 7-day sparklines in tables, and the full chart under the price checker */
+.spark { display: inline-block; vertical-align: middle; }
+.trend-cell { white-space: nowrap; }
+.trend-cell .t { font-size: 12px; color: var(--muted); margin-left: 6px; }
+.trend-card { margin-top: 10px; }
+.trend-card[hidden] { display: none; }
+.trend-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-bottom: 6px; }
+.trend-chart { position: relative; outline: none; }
+.trend-chart:focus-visible { box-shadow: 0 0 0 2px var(--chart-line); border-radius: 6px; }
+.trend-chart svg { display: block; width: 100%; overflow: visible; }
+.trend-chart text { fill: var(--muted); font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; }
+.trend-chart text.end { fill: var(--text); font-weight: 600; }
+.ph-tip { position: absolute; top: 0; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px; box-shadow: var(--shadow); font-size: 12px; white-space: nowrap; color: var(--muted); }
+.ph-tip[hidden] { display: none; }
+.ph-tip strong { display: block; font-size: 14px; color: var(--text); }
+.ph-tip .k { display: inline-block; width: 12px; height: 2px; background: var(--chart-line); vertical-align: middle; margin-right: 5px; border-radius: 1px; }
+.sell-controls input[type=number] { width: 170px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+.sell-controls label select { margin-left: 6px; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+.buy-verdict { border-left: 4px solid var(--border); }
+.buy-verdict.good { border-left-color: var(--ok); } .buy-verdict.good .v-head { color: var(--ok); }
+.buy-verdict.fair { border-left-color: var(--muted); }
+.buy-verdict.high { border-left-color: var(--maple); } .buy-verdict.high .v-head { color: var(--maple); }
+.buy-verdict.bad { border-left-color: var(--bandit); } .buy-verdict.bad .v-head { color: var(--bandit); }
+.quest-tbl td:first-child { width: 1%; } .quest-tbl input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--c); }
+#buy-class button[aria-pressed="true"] { background: var(--maple); }
+
+/* Ore price chart (its colors are tokens in the palette at the top) */
+.ore-card { position: relative; padding: 22px 18px 14px; }
+.ore-head { text-align: center; margin-bottom: 10px; }
+.ore-title { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+.ore-sub { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.ore-legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.ore-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg-bar { display: inline-block; width: 18px; height: 10px; border-radius: 0 3px 3px 0; background: var(--bar); }
+.lg-range { display: inline-block; width: 18px; height: 2px; background: var(--whisker); position: relative; }
+.lg-range::before, .lg-range::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: var(--whisker); }
+.lg-range::before { left: 0; } .lg-range::after { right: 0; }
+.ore-row, .ore-axis {
+  display: grid; grid-template-columns: 230px 1fr 104px; gap: 14px; align-items: center;
+  grid-template-areas: "name bar price";
+}
+.ore-axis { padding: 0 12px 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ore-axis .ax-name { grid-area: name; }
+.ore-axis .ax-price { grid-area: price; text-align: right; }
+.ore-axis .ax-ticks { grid-area: bar; position: relative; height: 16px; }
+.ore-axis .ax-ticks span { position: absolute; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.ore-row { padding: 9px 12px; border-radius: 10px; cursor: default; outline: none; }
+.ore-row:hover, .ore-row:focus-visible { background: var(--surface-2); }
+.ore-row.hot { background: var(--hot-bg); }
+.ore-name { grid-area: name; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ore-name svg { flex: none; }
+.ore-name b { display: block; font-size: 16px; line-height: 1.2; }
+.ore-name small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+.ore-track { grid-area: bar; position: relative; height: 30px; }
+.ore-track .grid { position: absolute; top: -9px; bottom: -9px; border-left: 1px dashed var(--border); }
+.ore-track .bar { position: absolute; left: 0; top: 8px; height: 14px; border-radius: 0 4px 4px 0; background: var(--bar); }
+.ore-row.hot .bar { background: var(--bar-hot); }
+.ore-track .rng { position: absolute; top: 14px; height: 2px; background: var(--whisker); opacity: .7; }
+.ore-track .rng::before, .ore-track .rng::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: var(--whisker); }
+.ore-track .rng::before { left: 0; } .ore-track .rng::after { right: 0; }
+.ore-price { grid-area: price; text-align: right; line-height: 1.15; }
+.ore-price b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.ore-price b::before { content: ""; display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: var(--bar); box-shadow: inset 0 0 0 2px rgba(0,0,0,.18); margin-right: 5px; vertical-align: 0; }
+.ore-price small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+.ore-tip {
+  position: absolute; z-index: 5; pointer-events: none; min-width: 210px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18); padding: 10px 12px; font-size: 13px;
+}
+.ore-tip b { display: block; font-size: 14px; margin-bottom: 4px; }
+.ore-tip dl { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 0; }
+.ore-tip dt { color: var(--muted); }
+.ore-tip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+@media (max-width: 640px) {
+  .ore-row, .ore-axis { grid-template-columns: 1fr 92px; grid-template-areas: "name price" "bar bar"; row-gap: 4px; }
+  .ore-axis .ax-name, .ore-axis .ax-price { display: none; }
+  .ore-name b { font-size: 15px; }
+}
+
+/* KPQ puzzle trackers */
+.pz-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pz-reset {
+  margin-left: auto; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  font: 600 13px system-ui; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+}
+.pz-reset:hover { border-color: var(--maple); }
+.combos { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; margin-top: 12px; }
+.combo {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 10px;
+  padding: 8px 6px; cursor: pointer; font: inherit;
+}
+.combo:hover { border-color: var(--maple); }
+.combo .n { font-size: 11px; font-weight: 700; color: var(--muted); }
+.combo .nm { font-size: 13px; font-weight: 700; }
+.mini { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.mini .r { display: flex; gap: 3px; }
+.mini .d {
+  width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--muted);
+  font-size: 10px; line-height: 16px; font-weight: 700; color: var(--muted); text-align: center;
+}
+.mini .d.on { background: var(--maple); border-color: var(--maple); color: #fff; }
+.combo[aria-pressed="true"] { background: var(--surface-2); opacity: .45; }
+.combo[aria-pressed="true"] .nm { text-decoration: line-through; }
+footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <h1><span>MapleStory Classic</span> builds</h1>
+  <p>Bandit, Assassin and Ice/Lightning Wizard for the launch version: level cap 100, no 3rd job yet.</p>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-tab="overview" style="--tc: var(--maple)"><span class="dot"></span>Overview</button>
+    <button role="tab" data-tab="bandit" style="--tc: var(--bandit)"><span class="dot"></span>Bandit</button>
+    <button role="tab" data-tab="assassin" style="--tc: var(--assassin)"><span class="dot"></span>Assassin</button>
+    <button role="tab" data-tab="il" style="--tc: var(--il)"><span class="dot"></span>I/L Wizard</button>
+    <button role="tab" data-tab="kpq" style="--tc: var(--maple)"><span class="dot"></span>Kerning PQ</button>
+    <button role="tab" data-tab="cash" style="--tc: var(--maple)"><span class="dot"></span>Cash Shop</button>
+    <button role="tab" data-tab="market" style="--tc: var(--maple)"><span class="dot"></span>Market</button>
+    <button role="tab" data-tab="farm" style="--tc: var(--maple)"><span class="dot"></span>Farming</button>
+    <button role="tab" data-tab="launch" style="--tc: var(--maple)"><span class="dot"></span>Launch &amp; 70+</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- OVERVIEW -->
+<section class="tab" id="tab-overview">
+  <div class="grid g2">
+    <div class="card launch">
+      <span class="label">Founder's Access</span>
+      <span class="when" id="fa-when">Tue 6 Oct, 18:00 UTC</span>
+      <span class="count" id="fa-count"></span>
+    </div>
+    <div class="card launch">
+      <span class="label">Grand Launch (free)</span>
+      <span class="when" id="gl-when">Wed 21 Oct, 18:00 UTC</span>
+      <span class="count" id="gl-count"></span>
+    </div>
+  </div>
+
+  <h2>What you are actually playing</h2>
+  <p class="lead">The cap is <strong>level 100</strong> and <strong>3rd job is not in at launch</strong>, so Hermit, Chief Bandit and I/L Mage do not exist yet. Everything here is 1st job, 2nd job, and 70 to 100 as a 2nd-jobber.</p>
+  <div class="grid g2">
+    <div class="card">
+      <dl class="facts">
+        <dt>Level cap</dt><dd>100</dd>
+        <dt>Jobs</dt><dd>1st at 10, 2nd at 30. 3rd job is being reworked and comes later</dd>
+        <dt>World</dt><dd>Maple Island and Victoria Island only. No Orbis, no El Nath</dd>
+        <dt>Slots</dt><dd><strong>3 per account.</strong> These three builds fill them, so there is no slot for a storage mule</dd>
+        <dt>Bosses</dt><dd>Mano, Mushmom, Shade, Zombie Mushmom, Jr. Balrog</dd>
+        <dt>Party quest</dt><dd>Kerning City PQ, level 21 and up (<a href="#kpq">guide</a>)</dd>
+        <dt>New</dt><dd>Crafting (6 professions, level 10+), Citizenship in Henesys or Kerning (level 12+), optional WASD keys</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <strong>What breaks old guides</strong>
+      <ul class="tight">
+        <li><strong>Skill max levels changed.</strong> Nimble Body, Keen Eyes, Magic Guard and Max MP Increase cap at 15. Old v62 or v83 SP builds do not add up.</li>
+        <li><strong>Haste is weaker:</strong> +30 speed, +10 jump.</li>
+        <li><strong>Crit Rate and Crit Damage</strong> are real stats on gear and skills.</li>
+        <li><strong>Scrolls:</strong> Lesser (100%), Intermediate (60%), Greater (10%), Chaos.</li>
+        <li><strong>Shields have a Guard %.</strong> All three builds should wear one.</li>
+        <li><strong>Forgotten Hollow is not open yet.</strong> Skip any guide map named Primeval Forest, Forgotten Entrance or Perilous Descent.</li>
+        <li>No stat requirement for 1st job. Death costs EXP. An SP Reset Scroll costs 7,000 NX (about $7) in the Cash Shop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Which one to start with</h2>
+  <div class="card rec">
+    <strong>Start with the Bandit.</strong> Best single-target damage, no ammo to buy, and its mesos pay for the Assassin's stars and the mage's MP potions. Play the I/L second if you want the fastest leveling: Thunder Bolt hits 6 mobs from level 41.
+  </div>
+  <h3>Level 70 comparison</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th>Bandit</th><th>Assassin</th><th>I/L Wizard</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Best at</strong></td><td>Bosses, single targets</td><td>Safe ranged single target</td><td>Mobbing packed maps</td></tr>
+        <tr><td><strong>Single-target DPS</strong></td><td><strong>5,696</strong></td><td>4,266</td><td>3,107</td></tr>
+        <tr><td><strong>Multi-target DPS</strong></td><td>3,553 (Steal hits 2)</td><td>none</td><td><strong>7,675</strong> (6 targets)</td></tr>
+        <tr><td><strong>Range</strong></td><td>Melee</td><td>400 px</td><td>Long, plus Teleport</td></tr>
+        <tr><td><strong>Running cost</strong></td><td><strong>Lowest:</strong> potions only</td><td>Stars, about 2,700 lost an hour</td><td>Highest: MP potions</td></tr>
+        <tr><td><strong>Toughness (phys / magic)</strong></td><td>~4,600 / ~2,260</td><td>~3,850 / ~2,260</td><td>~5,140 / <strong>~5,300</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">NiaMeowDB level 70 estimates against a 0-defense target. Read them as a ranking, not exact numbers.</p>
+</section>
+
+<!-- CLASS TABS (filled by script) -->
+<section class="tab" id="tab-bandit" data-c="bandit"></section>
+<section class="tab" id="tab-assassin" data-c="assassin"></section>
+<section class="tab" id="tab-il" data-c="il"></section>
+
+<!-- KERNING PQ -->
+<section class="tab" id="tab-kpq">
+  <h2>Kerning City Party Quest</h2>
+  <p class="lead"><strong>4 players, level 21 and up, 30 minutes for the whole run.</strong> No level cap and no job limit. The party leader talks to <strong>Lakelis</strong> by the sewer entrance in Kerning City. Several parties can run at the same time.</p>
+  <div class="grid g2">
+    <div class="card rec">
+      <strong>Is it worth it?</strong> Run it for the gear, not the EXP.
+      <ul class="tight">
+        <li><strong>Squishy Shoes</strong> (a chance when King Slime dies): level 28, any class, no stat requirement, +1 to all four stats, 18 weapon defense, 7 magic defense, 5 slots. Tradeable.</li>
+        <li><strong>Companion's Magic Box</strong> for every member at the end: ores, potions, scrolls or gear.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <strong>Before your first run</strong>
+      <p style="margin:6px 0 0">Take <strong>Proof of Companionship</strong> from Lakelis. Kill King Slime once for 1,870 EXP, 687 mesos and a random Intermediate earring scroll (STR, DEX, INT or LUK). One time only.</p>
+    </div>
+  </div>
+
+  <h2>Stage 1: Cloto's questions</h2>
+  <p class="lead">22 Ligators drop coupons. Cloto asks every member <strong>except the leader</strong> a question. Hand Cloto exactly that many coupons to get a pass, and drop the spares.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Cloto asks about</th><th class="num">Coupons</th></tr></thead>
+      <tbody>
+        <tr><td>Any job advancement level</td><td class="num"><strong>10</strong></td></tr>
+        <tr><td>EXP from level 1 to level 2</td><td class="num"><strong>15</strong></td></tr>
+        <tr><td>INT a Magician needs</td><td class="num"><strong>20</strong></td></tr>
+        <tr><td>DEX a Bowman or Thief needs</td><td class="num"><strong>25</strong></td></tr>
+        <tr><td>STR a Warrior needs</td><td class="num"><strong>35</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">The August test also showed answers of 21 and 30, so there are more questions. Read Cloto's line before collecting.</p>
+  <div class="card" style="margin-top:12px">
+    <strong>Drew the 35?</strong> Make that player the leader, since the leader is never asked. The old leader then talks to Cloto and draws a fresh question, often a cheaper one.
+  </div>
+
+  <h2>Stages 2 to 4: the puzzles</h2>
+  <p class="lead">Three members stand on three spots, then the leader checks with Cloto. <strong>Click a combination once you have tried it</strong> so the party never repeats one. Reset before the next run.</p>
+  <div id="kpq-puzzles" class="grid"></div>
+
+  <h2>Last stage: King Slime</h2>
+  <p class="lead">Curse Eyes at the top, Jr. Neckis in the middle, King Slime at the bottom. All 10 drop a coupon, and the leader hands the 10 to Cloto at the top. <strong>Jr. Neckis dodge a lot,</strong> so make sure someone has the accuracy to hit them.</p>
+  <div class="grid g2">
+    <div class="card">
+      <dl class="facts">
+        <dt>Level</dt><dd>32</dd>
+        <dt>HP</dt><dd><strong>16,820</strong>, about double the old game</dd>
+        <dt>Attack</dt><dd>391 weapon and magic. Warriors took 531 to 600 a hit in the August test</dd>
+        <dt>Defense</dt><dd>15 weapon, 15 magic</dd>
+        <dt>Knockback</dt><dd>Only from a hit of 1,750 or more</dd>
+        <dt>Resists</dt><dd>Holy, fire, <strong>ice and lightning</strong></dd>
+        <dt>On death</dt><dd>Splits into 11 Slimes</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <strong>For your three</strong>
+      <ul class="tight">
+        <li><strong>Bandit:</strong> melee means eating his hits. Bring plenty of HP potions.</li>
+        <li><strong>Assassin:</strong> the safest of the three here. Stay at range and keep throwing.</li>
+        <li><strong>I/L Wizard:</strong> he resists both your elements. Thunder Bolt the Jr. Neckis and Curse Eyes and let the others take the boss.</li>
+        <li><strong>The slam:</strong> in the old game, jumping just before he lands let the shockwave pass under you. Not confirmed in Classic yet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Bonus room and the way out</h2>
+  <p class="lead">After the boss comes one wave of 36 mushrooms (24 Horny, 12 Green) in a small room. There are no portals anywhere in the PQ: talk to <strong>Nella</strong>, who stands on every map, to leave.</p>
+
+  <h2>If someone dies or drops</h2>
+  <div class="card">
+    <ul class="tight">
+      <li><strong>Dying no longer ends the run.</strong> Walk back in.</li>
+      <li><strong>Three players can still finish.</strong> Stage 1 needs only 2 passes, and the leader fills the third puzzle spot.</li>
+      <li>Down to two before the puzzles are done: the run is over. Leave and rebuild. Two players already on the boss stage can still finish.</li>
+      <li>A trade-blocked player cannot drop passes. Make that player the leader.</li>
+    </ul>
+  </div>
+
+  <h2>Monsters inside</h2>
+  <p class="lead">These are PQ copies. The Ligators in the Kerning swamp outside are level 31 and much harder to hit.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Monster</th><th class="num">Level</th><th class="num">HP</th><th class="num">EXP</th><th class="num">Avoid</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Ligator</strong></td><td class="num">21</td><td class="num">778</td><td class="num">68</td><td class="num">9</td><td>Stage 1, 22 of them</td></tr>
+        <tr><td><strong>Jr. Necki</strong></td><td class="num">25</td><td class="num">765</td><td class="num">80</td><td class="num">12</td><td>Last stage, 6, respawn every 180 s</td></tr>
+        <tr><td><strong>Curse Eye</strong></td><td class="num">29</td><td class="num">1,186</td><td class="num">94</td><td class="num">13</td><td>Last stage, 3, respawn every 180 s</td></tr>
+        <tr><td><strong>King Slime</strong></td><td class="num">32</td><td class="num">16,820</td><td class="num">248</td><td class="num">11</td><td>Last stage, 1, no respawn</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Finding a party</h2>
+  <div class="card">
+    <ul class="tight">
+      <li>Parties form next to Lakelis. Type <strong>J&gt;PQ</strong> with your level and class to join, or <strong>L&gt;PQ</strong> / <strong>R&gt;PQ</strong> if you are building one.</li>
+      <li>Finished your coupons early? Help the slowest member, and pick up stray coupons and passes.</li>
+      <li>Say so before you go AFK, and never leave or kick mid-run.</li>
+    </ul>
+  </div>
+  <p class="small muted">From the <a href="https://meowdb.com/msclassic/guides/kerning-city-party-quest-kpq-guide" target="_blank" rel="noopener">NiaMeowDB KPQ guide</a>, based on the April and August closed tests.</p>
+</section>
+
+<!-- CASH SHOP -->
+<section class="tab" id="tab-cash">
+  <h2>What to buy with NX</h2>
+  <p class="lead">$50 is roughly <strong>50,000 NX</strong> (check the bundle size when you buy). Classic sells <strong>no EXP boosts or stat items</strong>, so nothing here is required: it is convenience and cosmetics. <strong>Start with the two packs below.</strong></p>
+
+  <h3>Packs (9,900 NX each, once per account, untradable)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Pack</th><th>Contains</th><th class="num">Worth</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><strong>Convenience Essentials</strong></td><td>SP Reset Scroll, AP Reset Scroll, Selective 5-slot Coupon, 10 Safety Charms (90 days), 10 Super Megaphones (90 days)</td><td class="num">~42,000</td><td><strong>Buy.</strong> Best value. Its SP Reset makes the Bandit's Route A free</td></tr>
+        <tr class="hl"><td><strong>Pet Booster Essentials</strong></td><td>Auto HP, Auto MP, Auto Move and Expanded Auto Move skills, 30 Premium Pet Food</td><td class="num">~11,000 + food</td><td><strong>Buy, with a pet</strong> (3,500 NX, not included)</td></tr>
+        <tr><td>Monthly Essentials</td><td>Megaphones, invisible hat, cape and shoes, 24-slot store permit, Portable Storage. All 30 days</td><td class="num">28,600</td><td>Skip. Made for heavy traders, and it is 9,900 every month</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">The packs land in the shared Cash Inventory and are untradable once taken out. Take each item out on the character that needs it: the SP Reset on the Bandit, the pet skills on whoever gets the pet.</p>
+
+  <h3>Single items</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Item</th><th class="num">NX</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pet</strong> (e.g. Brown Kitty)</td><td class="num">3,500</td><td>The base for the pet skills below. Lives 30 days</td></tr>
+        <tr><td><strong>Auto HP Potion Skill</strong></td><td class="num">2,500</td><td>The pet drinks your HP potions for you. Big for a melee Bandit</td></tr>
+        <tr><td>Auto MP Potion Skill</td><td class="num">2,500</td><td>Same for MP. Worth it on the I/L Wizard</td></tr>
+        <tr><td><strong>Auto Move Skill</strong></td><td class="num">3,000</td><td>The pet picks up loot and mesos around you. Needs a Meso Magnet or Item Pouch on the pet</td></tr>
+        <tr><td>Expanded Auto Move Skill</td><td class="num">3,000</td><td>Triples the pickup range. Needs Auto Move first</td></tr>
+        <tr><td><strong>Storage +5 slots</strong></td><td class="num">5,000</td><td>Storage is shared by all three characters, and there is no slot for a storage mule</td></tr>
+        <tr><td><strong>Inventory +5 slots</strong> (pick a tab)</td><td class="num">5,000</td><td>Put it on Etc, where loot piles up</td></tr>
+        <tr><td>Safety Charm</td><td class="num">800, or 12 for 8,400</td><td>No EXP lost on death. 10 come in the Convenience pack, so only buy more later</td></tr>
+        <tr><td>Water of Life</td><td class="num">2,000</td><td>Keeps the pet alive another 30 days</td></tr>
+        <tr><td>Store Permit</td><td class="num">1,500</td><td>Only to sell drops yourself, while you stay at the shop. Lasts 90 days. Hired merchants are not on sale yet</td></tr>
+        <tr><td class="muted">SP Reset Scroll</td><td class="num muted">7,000</td><td class="muted">Comes in the Convenience pack. Don't buy it alone</td></tr>
+        <tr><td class="muted">AP Reset Scroll</td><td class="num muted">7,000</td><td class="muted">Comes in the Convenience pack. Not needed anyway: the DEX fix gets you back on track</td></tr>
+        <tr><td>Founder's Mystery Fashion Crate</td><td class="num">3,500, or 11 for 35,000</td><td>Random cosmetic, 1% to 3% per item (Nexon publishes the odds), duplicates possible. Ends 28 October. See the Market tab for what it sells for</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>A $50 split</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Buy</th><th class="num">NX</th></tr></thead>
+      <tbody>
+        <tr><td>Convenience Essentials pack</td><td class="num">9,900</td></tr>
+        <tr><td>Pet Booster Essentials pack</td><td class="num">9,900</td></tr>
+        <tr><td>A pet (Brown Kitty, Brown Puppy, Pink Bunny, White Bunny, Black Kitty or Black Pig)</td><td class="num">3,500</td></tr>
+        <tr><td><strong>Total</strong></td><td class="num"><strong>23,300</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">That leaves about 26,700 NX for Storage +5 (5,000), Waters of Life (2,000 each) or crates.</p>
+
+  <h2>Good to know</h2>
+  <div class="card">
+    <ul class="tight">
+      <li><strong>Moving Cash Shop items between your characters:</strong> leave the item in the Cash Inventory inside the Cash Shop, log into the other character on the same world, and take it out there. Once an item is in a character's own inventory, check its tooltip: "Untradable" means it stays.</li>
+      <li><strong>Pet skills vanish</strong> if the pet's 30-day lifespan runs out. Keep a Water of Life ready once you invest in skills.</li>
+      <li><strong>Meso Magnet and Item Pouch</strong> are not in the Cash Shop. In the original game they were bought with mesos at the Henesys pet shop. Not confirmed for Classic yet.</li>
+      <li><strong>Crate items</strong> can be sold to other players or traded in for Aurora Stamps. If you want one specific item, buying it from a player for mesos can be cheaper than rolling. Halloween and Aurora crates are in the game data but not on sale yet.</li>
+    </ul>
+  </div>
+  <p class="small muted">Packs and prices from Nexon's <a href="https://www.nexon.com/maplestory/news/sale/45819/founder-s-access-cash-shop" target="_blank" rel="noopener">Founder's Access Cash Shop</a> post and the <a href="https://osmsdataexplorer.com/#cashshop" target="_blank" rel="noopener">OSMS Data Explorer</a> Cash Shop data, release build of 6 October 2026.</p>
+</section>
+
+<!-- MARKET -->
+<section class="tab" id="tab-market">
+  <h2>What to sell (live prices)</h2>
+  <p class="lead" id="sell-lead">Loading price data...</p>
+  <div class="grid g3" id="sell-highlights"></div>
+  <h3>All priced items</h3>
+  <div class="sell-controls">
+    <input type="search" id="sell-q" placeholder="Search an item, e.g. Pure Water" aria-label="Search items">
+    <div class="seg" role="group" aria-label="Item type" id="sell-cats"></div>
+    <label class="small muted">Sort
+      <select id="sell-sort">
+        <option value="price">Highest price</option>
+        <option value="x">Most above NPC price</option>
+        <option value="reports">Most reports</option>
+        <option value="name">Name</option>
+      </select>
+    </label>
+  </div>
+  <div class="tbl-wrap sell-wrap">
+    <table id="sell-table">
+      <thead><tr><th>Item</th><th>Type</th><th class="num">Player price</th><th>Last 7 days</th><th class="num">NPC pays</th><th class="num">x NPC</th><th class="num">Reports</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small muted" id="sell-source"></p>
+
+  <h2>Buying smarter</h2>
+  <p class="lead">Check a shop's price before you buy, and see which gear fits your character right now.</p>
+  <h3>Is this a good price?</h3>
+  <div class="sell-controls">
+    <input type="search" id="buy-item" list="buy-items" placeholder="Item name, e.g. Red Ninja Sandals" aria-label="Item name" autocomplete="off">
+    <input type="number" id="buy-price" min="0" step="1" placeholder="Price in mesos" aria-label="Price in mesos">
+  </div>
+  <datalist id="buy-items"></datalist>
+  <div class="card buy-verdict" id="buy-verdict"><span class="muted">Type an item and the price you see.</span></div>
+  <div class="card trend-card" id="trend-card" hidden>
+    <div class="trend-head"><strong id="trend-title"></strong><span class="small muted" id="trend-sub"></span></div>
+    <div class="trend-chart" id="trend-chart" tabindex="0" aria-label="Price trend chart. Use the left and right arrow keys to read each day."></div>
+    <details class="small" style="margin-top:8px"><summary>Show the numbers</summary>
+      <div class="tbl-wrap"><table id="trend-table"><thead><tr><th>Day</th><th class="num">Average sale</th><th class="num">Sales</th></tr></thead><tbody></tbody></table></div>
+    </details>
+  </div>
+  <h3>Gear for your character</h3>
+  <div class="sell-controls">
+    <div class="seg" role="group" aria-label="Character" id="buy-class"></div>
+    <span class="small muted" id="buy-level"></span>
+  </div>
+  <div class="tbl-wrap sell-wrap">
+    <table id="buy-gear">
+      <thead><tr><th>Item</th><th>Slot</th><th class="num">Lv</th><th>Stats</th><th class="num">Typical</th><th>Last 7 days</th><th class="num">Good buy at</th><th class="num">Reports</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small muted" id="buy-source"></p>
+
+  <h2>Market prices</h2>
+  <p class="lead">Player prices seen in game, next to what an NPC pays. Early-launch prices move fast; NPC prices never change, so they are the floor.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Item</th><th class="num">NPC pays</th><th class="num">Player price seen</th><th>Seen</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Leather</strong></td><td class="num">10</td><td class="num"><strong>150</strong></td><td>8 Oct 2026</td><td>Drops from Pigs and Ribbon Pigs, among others. Crafters buy it: 5 make one Processed Leather, and Arcforge uses 3 per Processed Parchment</td></tr>
+        <tr><td><strong>Processed Leather</strong></td><td class="num">10</td><td class="num muted">not seen yet</td><td></td><td>Leatherworking Lv 1: 5 Leather + 100 mesos. Used in 101 recipes, including the Steel Titans and Bronze Igor claws (10 to 40 each)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card rec" style="margin-top:14px">
+    <strong>Leather at 150:</strong>
+    <ul class="tight">
+      <li><strong>Selling:</strong> sell it. That is 15 times the NPC price, and it will drop as more players farm Pigs.</li>
+      <li><strong>Buying:</strong> only to level Leatherworking or for a recipe you need. One Processed Leather costs 5 x 150 + 100 = <strong>850 mesos</strong>, for an item the NPC buys back for 10.</li>
+    </ul>
+  </div>
+  <p class="small muted">NPC prices and recipes from NiaMeowDB: <a href="https://meowdb.com/msclassic/item-db/396" target="_blank" rel="noopener">Leather</a>, <a href="https://meowdb.com/msclassic/item-db/311" target="_blank" rel="noopener">Processed Leather</a>. Its drop list comes from the old game's tables, so treat it as a guide. NiaMeowDB's players report Leather at 125 to 749, median 255 (11 reports to 8 Oct), so 250 is a fair listing.</p>
+
+  <h2>Ores</h2>
+  <p class="lead"><strong>Garnet is the only ore worth over 1,000: it sells for about 1,599.</strong> Everything else sells for 200 to 500. List at the typical price, or near the low end of "most sales" to sell fast. Hover a bar for details.</p>
+  <div class="card ore-card">
+    <div class="ore-head">
+      <div class="ore-title">Ore sale prices</div>
+      <div class="ore-sub">Classic World · first 3 days · <span id="ore-total"></span> ore sales seen</div>
+    </div>
+    <div class="ore-legend small muted">
+      <span><i class="lg-bar"></i>Typical sale price</span>
+      <span><i class="lg-range"></i>Where most sales land</span>
+    </div>
+    <div id="ore-chart" role="list"></div>
+    <div id="ore-tip" class="ore-tip" hidden></div>
+  </div>
+  <p class="small muted">Sale prices and counts from the MesoWatch chart of the first 3 days (actual sales, not asking prices). NPC prices from NiaMeowDB item pages, e.g. <a href="https://meowdb.com/msclassic/item-db/413" target="_blank" rel="noopener">Bronze Ore</a>. Black Crystal Ore had no sales in that chart, but the NPC pays 500 for it, so never sell it for less.</p>
+
+  <h2>NX items for mesos</h2>
+  <p class="lead" id="nx-lead">Loading price data...</p>
+  <div class="grid g3" id="nx-cards"></div>
+  <h3>Cash Shop items: NX cost vs what players pay</h3>
+  <div class="tbl-wrap">
+    <table id="nx-shop">
+      <thead><tr><th>Item</th><th class="num">NX</th><th class="num">Sells for</th><th>Last 7 days</th><th class="num">Mesos per $1</th><th class="num">Sales</th><th>Note</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <h3>Crate cosmetics</h3>
+  <div class="sell-controls">
+    <div class="seg" role="group" aria-label="Crate" id="nx-crate-pick"></div>
+  </div>
+  <div class="tbl-wrap sell-wrap">
+    <table id="nx-crate">
+      <thead><tr><th>Item</th><th class="num">Chance</th><th class="num">Sells for</th><th class="num">Asking</th><th class="num">Sales</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small muted" id="nx-source"></p>
+</section>
+
+<!-- FARMING -->
+<section class="tab" id="tab-farm">
+  <h2>Farming spots</h2>
+  <p class="lead">Which maps drop the most value at your level, priced at today's market. Further down: where to farm one specific drop.</p>
+
+  <h3>Top 3 for each character</h3>
+  <div class="grid g3" id="farm-summary"></div>
+
+  <h3>Best maps for drops</h3>
+  <div class="sell-controls">
+    <div class="seg" role="group" aria-label="Character" id="farm-class"></div>
+    <span class="small muted" id="farm-level"></span>
+  </div>
+  <div class="tbl-wrap sell-wrap">
+    <table id="farm-maps">
+      <thead><tr><th>Map</th><th>Monsters</th><th class="num">Drops per full map</th><th>Where the value comes from</th><th>Notes for you</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h3>Monsters worth the most per kill</h3>
+  <div class="tbl-wrap sell-wrap">
+    <table id="farm-mobs">
+      <thead><tr><th>Monster</th><th class="num">Lv</th><th class="num">HP</th><th class="num">Per kill</th><th class="num">Per 1,000 HP</th><th>Best drops</th><th>Most of them</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small muted" id="farm-source"></p>
+
+  <h3>Octopus Leg</h3>
+  <p class="small muted">Maps here are ranked by how fast Octopuses respawn, not just how many there are.</p>
+  <p class="lead"><strong>Farm at Caution Falling Down or Northern Top of Construction Site</strong>, two hidden streets near Kerning City. Only the <strong>Octopus</strong> (level 12) drops it. You need <strong>30</strong> for a Kerning City citizenship donation.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Map</th><th>Area</th><th class="num">Octopuses</th><th class="num">Share of map</th><th class="num">Respawn rate</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><strong>Caution Falling Down</strong></td><td>Hidden Street</td><td class="num">12 of 20</td><td class="num">60%</td><td class="num"><strong>1.9x</strong></td></tr>
+        <tr class="hl"><td><strong>Northern Top of Construction Site</strong></td><td>Hidden Street</td><td class="num">12 of 21</td><td class="num">57%</td><td class="num"><strong>1.8x</strong></td></tr>
+        <tr><td>Damp Tree-Forest</td><td>Dungeon</td><td class="num">19 of 46</td><td class="num">41%</td><td class="num">0.8x</td></tr>
+        <tr><td>Damp Forest</td><td>Dungeon</td><td class="num">15 of 28</td><td class="num">54%</td><td class="num">0.8x</td></tr>
+        <tr><td>Kerning City Construction Site</td><td>Victoria Road</td><td class="num">10 of 52</td><td class="num">19%</td><td class="num">0.7x</td></tr>
+        <tr><td>Construction Site North of Kerning City</td><td>Victoria Road</td><td class="num">8 of 54</td><td class="num">15%</td><td class="num">1.0x</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">Damp Tree-Forest has the most Octopuses, but they come back at under half the rate, so the two hidden streets win. Octopuses also show up in small numbers (2 each) in Swampy Land in a Deep Forest, Hunting Ground in the Deep Forest I and Sleepy Dungeon I; not worth it.</p>
+  <div class="card" style="margin-top:12px">
+    <ul class="tight">
+      <li><strong>Easy kills:</strong> 191 HP, 7 avoid. You need 24 accuracy at level 12 to never miss. They walk back and forth on their own floor and give 23 EXP and about 24 mesos each.</li>
+      <li><strong>Take Andre's Request</strong> in Kerning City first (level 10+): "defeat 30 Octopus", done while you farm.</li>
+      <li><strong>Bonus drops players have seen:</strong> Adamantium Ore (about 199), <strong>Aquamarine Ore (about 500)</strong>, Fragment of Magic, Red Potions, and the <strong>Red Thief Hood</strong>, a level 15 thief hat.</li>
+      <li>The drop rate is not published. Check your count after the first 50 kills to estimate how long 30 legs will take.</li>
+    </ul>
+  </div>
+  <p class="small muted">Spawn counts, respawn rates, stats and player-seen drops from the NiaMeowDB <a href="https://meowdb.com/msclassic/monsters/12" target="_blank" rel="noopener">Octopus</a> page; ore prices from the Market tab.</p>
+</section>
+
+<!-- LAUNCH & 70+ -->
+<section class="tab" id="tab-launch">
+  <h2>Launch-day checklist</h2>
+  <p class="lead">Ticks are saved in this browser.</p>
+  <div class="card">
+    <ul class="check" id="checklist"></ul>
+  </div>
+
+  <h2>Maple Island: Rain's quiz</h2>
+  <p class="lead">Rain in Amherst asks 7 questions from level 5. Each right answer pays 40 to 100 EXP (490 in all), and the last one adds 10 Oranges.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Rain asks</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Which key hangs you on a ladder or rope?</td><td><strong>Up arrow key</strong></td></tr>
+        <tr><td class="num">2</td><td>Can you wear an item by double-clicking it?</td><td><strong>Oh yes</strong></td></tr>
+        <tr><td class="num">3</td><td>Which window shows what you're wearing?</td><td><strong>Equipment Inventory</strong></td></tr>
+        <tr><td class="num">4</td><td>Which is not a way to recover health?</td><td><strong>Sleep</strong></td></tr>
+        <tr><td class="num">5</td><td>What level is the Magician's job advancement?</td><td><strong>Level 10</strong> (not 8, the old game's answer)</td></tr>
+        <tr><td class="num">6</td><td>How much AP do you get each level?</td><td><strong>5 points</strong></td></tr>
+        <tr><td class="num">7</td><td>Where do you get a ride to Victoria Island?</td><td><strong>Southperry</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">Answers from NiaMeowDB's quest tracker: <a href="https://meowdb.com/msclassic/quest-tracker/1013" target="_blank" rel="noopener">1</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1014" target="_blank" rel="noopener">2</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1015" target="_blank" rel="noopener">3</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1016" target="_blank" rel="noopener">4</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1017" target="_blank" rel="noopener">5</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1018" target="_blank" rel="noopener">6</a>, <a href="https://meowdb.com/msclassic/quest-tracker/1019" target="_blank" rel="noopener">7</a>. Rewards from the OSMS Data Explorer quest data.</p>
+
+  <h2>After level 70</h2>
+  <p class="lead"><strong>Levels 70 to 90 take about 72 million EXP, a bit over twice everything from 1 to 70. Level 90 to 100 is a wall: about 18 billion EXP.</strong> Classic uses the old pre-Big Bang EXP table up to level 89, then each level costs 2.1 times the one before; level 99 alone is about 9.5 billion. That comes from the release client's own EXP formula. Victoria Island has no strong map past the 60s. Wild Kargo (Lv 62), Tauromacis (Lv 70) and Taurospear (Lv 75) all respawn on timers, so they train slowly.</p>
+  <div class="card">
+    <ul class="tight">
+      <li>Stay on the best maps you already use: the subway Wraith maps for the mage, Forest of Evil II or Sleepy Dungeon V for the thieves.</li>
+      <li>Same AP rule: thieves add DEX only for gear and the rest to LUK, the mage goes all INT.</li>
+      <li>Levels 71 to 100 give 90 more SP. Each build needs only 19 to finish its 2nd job skills. Nexon has not said whether the rest carries into 3rd job.</li>
+    </ul>
+  </div>
+
+  <h2>Sources</h2>
+  <div class="card">
+    <ul class="tight">
+      <li><a href="https://www.nexon.com/maplestory/news/general/45621/founder-s-access-release-notes" target="_blank" rel="noopener">Founder's Access Release Notes</a>, Nexon, 3 October 2026</li>
+      <li><a href="https://osmsdataexplorer.com/#overview" target="_blank" rel="noopener">OSMS Data Explorer</a>, a datamine of the release game files (6 October 2026): skill values and the SP Reset Scroll price checked here</li>
+      <li>NiaMeowDB guides, built from closed test 2:
+        <a href="https://meowdb.com/msclassic/guides/thief-class-guide" target="_blank" rel="noopener">Thief 1-30</a>,
+        <a href="https://meowdb.com/msclassic/guides/bandit-class-guide" target="_blank" rel="noopener">Bandit</a>,
+        <a href="https://meowdb.com/msclassic/guides/assassin-class-guide" target="_blank" rel="noopener">Assassin</a>,
+        <a href="https://meowdb.com/msclassic/guides/magician-class-guide" target="_blank" rel="noopener">Magician 1-30</a>,
+        <a href="https://meowdb.com/msclassic/guides/il-wizard-class-guide" target="_blank" rel="noopener">I/L Wizard</a></li>
+      <li>NiaMeowDB reference:
+        <a href="https://meowdb.com/msclassic/tier-list" target="_blank" rel="noopener">Tier list</a>,
+        <a href="https://meowdb.com/msclassic/guides/best-grind-maps-every-level" target="_blank" rel="noopener">Training maps</a>,
+        <a href="https://meowdb.com/msclassic/guides/exp-table-level-1-to-100" target="_blank" rel="noopener">EXP table</a>,
+        <a href="https://meowdb.com/msclassic/guides/forgotten-hollow-the-new-endgame-area" target="_blank" rel="noopener">Forgotten Hollow</a>,
+        <a href="https://meowdb.com/msclassic/guides/kerning-city-party-quest-kpq-guide" target="_blank" rel="noopener">Kerning PQ</a>,
+        <a href="https://meowdb.com/msclassic/training-advisor" target="_blank" rel="noopener">Training Advisor</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  Builds come from the second closed test, with skill values checked against the release game files on 6 October 2026. Check a skill's tooltip before you commit SP.
+</footer>
+
+<script src="prices.js"></script>
+<script src="gamedata.js"></script>
+<script src="farmdata.js"></script>
+<script src="price-history.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- storage (per-browser convenience only) ----------
+  var store = {
+    get: function (k, d) {
+      try { var v = localStorage.getItem("mscg." + k); return v === null ? d : JSON.parse(v); }
+      catch (e) { return d; }
+    },
+    set: function (k, v) {
+      try { localStorage.setItem("mscg." + k, JSON.stringify(v)); } catch (e) {}
+    }
+  };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  // ---------- shared thief data ----------
+  var THIEF_SKILLS = [
+    ["Lucky Seven", 20, "Throws 2 stars, damage from LUK"],
+    ["Keen Eyes", 15, "Claw range. Needs Nimble Body 3"],
+    ["Nimble Body", 15, "Accuracy and avoid"],
+    ["Double Stab", 20, "2-hit dagger attack"],
+    ["Disorder", 20, "Lowers a mob's attack and weapon defense"],
+    ["Dark Sight", 20, "Invisible, cannot attack. Needs Disorder 3"]
+  ];
+  var L7_FINAL = { "Lucky Seven": 20, "Keen Eyes": 15, "Nimble Body": 15, "Double Stab": 0, "Disorder": 3, "Dark Sight": 8 };
+  var DAGGER_FINAL = { "Lucky Seven": 0, "Keen Eyes": 0, "Nimble Body": 15, "Double Stab": 20, "Disorder": 6, "Dark Sight": 20 };
+
+  var L7_STEPS = [
+    [10, 10, "Lucky Seven 1"],
+    [11, 11, "Nimble Body 3 (unlocks Keen Eyes)"],
+    [12, 12, "Keen Eyes 1, Lucky Seven +2"],
+    [13, 17, "Lucky Seven +3 a level (18 at 17)"],
+    [18, 18, "Lucky Seven +2 (maxed at 20), Keen Eyes +1"],
+    [19, 22, "Keen Eyes +3 a level (14 at 22)"],
+    [23, 23, "Keen Eyes +1 (maxed at 15), Nimble Body +2"],
+    [24, 26, "Nimble Body +3 a level (14 at 26)"],
+    [27, 27, "Nimble Body +1 (maxed at 15), Disorder +2"],
+    [28, 28, "Disorder +1 (3, unlocks Dark Sight), Dark Sight +2"],
+    [29, 30, "Dark Sight +3 a level (8 at 30)"]
+  ];
+  var L7_GANTT = [
+    ["Lucky Seven", [[10, 10], [12, 18]]],
+    ["Nimble Body", [[11, 11], [23, 27]]],
+    ["Keen Eyes", [[12, 12], [18, 23]]],
+    ["Disorder", [[27, 28]]],
+    ["Dark Sight", [[28, 30]]]
+  ];
+  var DAGGER_STEPS = [
+    [10, 16, "Double Stab: 1 at 10, then +3 a level (19 at 16)"],
+    [17, 17, "Double Stab +1 (maxed at 20), Nimble Body +2"],
+    [18, 21, "Nimble Body +3 a level (14 at 21)"],
+    [22, 22, "Nimble Body +1 (maxed at 15), Disorder +2"],
+    [23, 23, "Disorder +3 (5)"],
+    [24, 24, "Disorder +1 (6), Dark Sight +2"],
+    [25, 30, "Dark Sight +3 a level (maxed at 20 at 30)"]
+  ];
+  var DAGGER_GANTT = [
+    ["Double Stab", [[10, 17]]],
+    ["Nimble Body", [[17, 22]]],
+    ["Disorder", [[22, 24]]],
+    ["Dark Sight", [[24, 30]]]
+  ];
+
+  var THIEF_TRAIN_LOW = [
+    [1, 9, "Maple Island, then Victoria Island", "Quests and snails. Advance at 10 with Dark Lord in Kerning City"],
+    [10, 12, "L Forest I, Construction Site North of Kerning City", "Ribbon Pigs and Dark Stumps, right next to Kerning"],
+    [13, 17, "Line 1 <Area 1> (subway), West Rocky Mountain III", "Bubblings (Lv 15), Green Mushrooms (Lv 14)"],
+    [18, 21, "Dangerous Steam, Transfer Area", "Stirges (Lv 20)"],
+    [22, 26, "Ant Tunnel III, Deep Ant Tunnel I", "Horny and Zombie Mushrooms (Lv 22 to 24)"],
+    [27, 30, "Ant Tunnel Park, Deep Ant Tunnel I", "Evil Eyes (Lv 27); the park has a potion shop"]
+  ];
+
+  var CLAWS = [
+    { lv: 1, name: "Wooden Club", atk: "19", req: "Beginner weapon" },
+    { lv: 5, name: "Razor", atk: "23", req: "Beginner dagger" },
+    { lv: 10, name: "Beginner's Garnier + Subi stars", atk: "10", req: "Given at advancement" },
+    { lv: 15, name: "Steel Titans", atk: "13", req: "15 DEX. Cutthroat Manny's shop in Kerning, or Weaponcrafting 3" },
+    { lv: 20, name: "Steel Igor", atk: "17", req: "20 DEX. Manny's shop, or Weaponcrafting 4" },
+    { lv: 25, name: "Meba", atk: "19", req: "25 DEX. Manny's shop, or Weaponcrafting 5" },
+    { lv: 30, name: "Adamantium Guards", atk: "23", req: "30 DEX, 65 LUK. Weaponcrafting 6 (no shop sells a level 30 claw)" },
+    { lv: 35, name: "Dark Guardian", atk: "26", req: "Weaponcrafting 7" },
+    { lv: 40, name: "Steel Avarice", atk: "28", req: "40 DEX, 85 LUK. Weaponcrafting 8" },
+    { lv: 50, name: "Dark Slain (or Steel, Blood, Sapphire Slain)", atk: "34", req: "50 DEX, 105 LUK. Free Market or drops: the Weaponcrafting 10 recipe is above this version's crafting cap of 8" },
+    { lv: 60, name: "Dark Gigantic", atk: "41", req: "Free Market, drops" },
+    { lv: 70, name: "Black Scarab", atk: "47", req: "70 DEX. Free Market, drops" }
+  ];
+  var DAGGERS = [
+    { lv: 30, name: "Reef Claw", atk: "48", req: "25 DEX, 60 LUK" },
+    { lv: 35, name: "Halfmoon Zamadar", atk: "53", req: "Crafted" },
+    { lv: 40, name: "Gephart", atk: "58", req: "35 DEX, 80 LUK" },
+    { lv: 50, name: "Shinkita", atk: "68", req: "45 DEX, 100 LUK" },
+    { lv: 60, name: "Deadly Fin", atk: "78", req: "55 DEX, 120 LUK" },
+    { lv: 70, name: "Kandine", atk: "88", req: "65 DEX, 140 LUK. The plan reaches 65 DEX at level 65, so no gear needed" }
+  ];
+
+  function thiefLowAP(L) {
+    if (L <= 1) return { text: "Starting stats", dex: 5, luk: 12 };
+    if (L <= 10) return { text: "All 5 AP into LUK", dex: 5, luk: 12 + 5 * (L - 1) };
+    if (L <= 15) return { text: "+2 DEX, +3 LUK, so you have 15 DEX at 15 (Steel Titans needs 15, Field Dagger 10)", dex: 5 + 2 * (L - 10), luk: 57 + 3 * (L - 10) };
+    if (L <= 30) return { text: "+1 DEX, +4 LUK", dex: 15 + (L - 15), luk: 72 + 4 * (L - 15) };
+    return null;
+  }
+
+  var NO_USE_SP = "Nothing left to max. Nexon has not said whether spare SP carries into 3rd job, so hold it";
+
+  // ---------- class definitions ----------
+  var CLASSES = {
+    bandit: {
+      name: "Bandit",
+      tagline: "Savage Blow melee. Best single-target damage, cheapest to run.",
+      lead: "<strong>+1 DEX and +4 LUK a level until 65 DEX, then all LUK.</strong> Route B's 2nd-job order is Dagger Mastery, Savage Blow, Haste, Steal. Route A maxes Haste first while still on a claw, then takes Dagger Mastery and Savage Blow after the SP reset at 40. Pick your route before level 30.",
+      advanceAt30: "Talk to Dark Lord in Kerning City, take his letter to the Thief Job Instructor at Construction Site North of Kerning City, collect 30 Dark Marbles there, and bring The Proof of a Hero back to Dark Lord",
+      routes: {
+        A: {
+          label: "Route A: reset at 40",
+          blurb: "Level to 40 with a claw and Lucky Seven (a \"Sindit\"), then use a Cash Shop <strong>SP Reset Scroll</strong> to rebuild as a dagger Bandit. Faster 30 to 40, costs one scroll: 7,000 NX, about $7.",
+          first: { steps: L7_STEPS, gantt: L7_GANTT, final: L7_FINAL },
+          second: [
+            [30, 30, "Haste 1. Keep the claw and Lucky Seven"],
+            [31, 36, "Haste +3 a level (19 at 36)"],
+            [37, 37, "Haste +1 (maxed at 20), Nimble Recovery +2"],
+            [38, 39, "Nimble Recovery +3 a level (8 at 39)"],
+            [40, 40, "USE THE SP RESET SCROLL. 2nd job: Dagger Mastery 20, Dagger Booster 1, Savage Blow 10. 1st job: Nimble Body 15, Disorder 6, Dark Sight 20, Double Stab 20. Switch to a dagger"],
+            [41, 43, "Savage Blow +3 a level (19 at 43). Swap Double Stab for Savage Blow around 42"],
+            [44, 44, "Savage Blow +2 (21: six hits), Haste 1"],
+            [45, 47, "Savage Blow +3 a level (maxed at 30 at 47)"]
+          ],
+          gantt: [
+            ["Haste", [[30, 37], [44, 44], [48, 54]]],
+            ["Nimble Recovery", [[37, 39], [54, 58], [71, 77]]],
+            ["Dagger Mastery", [[40, 40]]],
+            ["Savage Blow", [[40, 47]]],
+            ["Steal", [[58, 68]]],
+            ["Dagger Booster", [[40, 40], [68, 70], [71, 77]]]
+          ],
+          markers: [[40, "SP reset"]],
+          weapons: CLAWS.filter(function (w) { return w.lv <= 30; }).concat(DAGGERS.filter(function (w) { return w.lv >= 40; }).map(function (w) {
+            return w.lv === 40 ? { lv: 40, name: "Gephart (dagger, right after the reset)", atk: w.atk, req: w.req } : w;
+          }))
+        },
+        B: {
+          label: "Route B: pure dagger",
+          blurb: "A dagger Bandit from level 10 that never resets. No Cash Shop purchase. Slower before 40, same build at 70.",
+          first: { steps: DAGGER_STEPS, gantt: DAGGER_GANTT, final: DAGGER_FINAL },
+          second: [
+            [30, 30, "Haste 1. Keep attacking with Double Stab"],
+            [31, 31, "Dagger Mastery +3"],
+            [32, 32, "Dagger Mastery +2 (5), Dagger Booster 1"],
+            [33, 37, "Dagger Mastery +3 a level (maxed at 20 at 37)"],
+            [38, 43, "Savage Blow +3 a level (18 at 43). Swap Double Stab for Savage Blow around 43"],
+            [44, 44, "Savage Blow +3 (21: six hits)"],
+            [45, 47, "Savage Blow +3 a level (maxed at 30 at 47)"]
+          ],
+          gantt: [
+            ["Haste", [[30, 30], [48, 54]]],
+            ["Dagger Mastery", [[31, 37]]],
+            ["Savage Blow", [[38, 47]]],
+            ["Nimble Recovery", [[54, 58], [71, 77]]],
+            ["Steal", [[58, 68]]],
+            ["Dagger Booster", [[32, 32], [68, 70], [71, 77]]]
+          ],
+          markers: [],
+          weapons: CLAWS.filter(function (w) { return w.lv <= 5; }).concat(
+            [{ lv: 10, name: "Best dagger the Kerning shop will sell you", atk: "", req: "Match your DEX and LUK" }],
+            DAGGERS)
+        }
+      },
+      secondShared: [
+        [48, 53, "Haste +3 a level (19 at 53)"],
+        [54, 54, "Haste +1 (maxed at 20), Nimble Recovery +2"],
+        [55, 57, "Nimble Recovery +3 a level (11 at 57)"],
+        [58, 58, "Nimble Recovery +1 (12), Steal +2"],
+        [59, 67, "Steal +3 a level (29 at 67)"],
+        [68, 68, "Steal +1 (maxed at 30), Dagger Booster +2"],
+        [69, 70, "Dagger Booster +3 a level (9 at 70)"],
+        [71, 77, "Finish Nimble Recovery (20) and Dagger Booster (20)"],
+        [78, 100, NO_USE_SP]
+      ],
+      secondSkills: [
+        ["Dagger Mastery", 20, "Mastery +10, Crit Rate +20%, 20% chance to ignore knockback", 20],
+        ["Savage Blow", 30, "Up to 6 hits at 75% each, 28 MP. Six hits from skill Lv 21", 30],
+        ["Steal", 30, "Hits 2 mobs at 180%. On a successful steal (90% at max): stuns 1.5 s, drops an item, +35 Attack for 60 s", 30],
+        ["Haste", 20, "Party +30 speed, +10 jump, 300 s", 20],
+        ["Nimble Recovery", 20, "At Lv 12 an evade has a 64% chance to heal 6% HP and MP, once per 30 s (Lv 20: 100%, 10%)", 12],
+        ["Dagger Booster", 20, "Attack speed +2 stages. Lv 9 lasts 180 s", 9]
+      ],
+      ap: function (L) {
+        var low = thiefLowAP(L);
+        if (low) return { text: low.text, base: "DEX " + low.dex + " / LUK " + low.luk };
+        if (L <= 65) return { text: "+1 DEX, +4 LUK", base: "DEX " + L + " / LUK " + (132 + 4 * (L - 30)) };
+        if (L <= 70) return { text: "All 5 AP into LUK", base: "DEX 65 / LUK " + (272 + 5 * (L - 65)) };
+        return { text: "All LUK, unless new gear asks for DEX", base: "DEX 65 / LUK " + (297 + 5 * (L - 70)) };
+      },
+      train: THIEF_TRAIN_LOW.concat([
+        [31, 34, "Transfer Area", "Stirge"],
+        [35, 39, "Ant Tunnel", "Zombie and Horny Mushroom"],
+        [40, 41, "Deep Ant Tunnel II", "Evil Eye"],
+        [42, 44, "The Burnt Land I or III", "Dark Axe Stump"],
+        [45, 49, "Tree Dungeon, Forest Up North IX, The Burnt Land V", "Pick maps where one Savage Blow kills"],
+        [50, 59, "Monkey Forest II, Tree Dungeon, Monkey Forest II", "Zombie Lupin, about 7,100 EXP/min at 50"],
+        [60, 100, "Forest of Evil II, or Sleepy Dungeon V when it is free", "Dark Stone Golem (Lv 58) in Sleepy V"]
+      ]),
+      extras: function () {
+        return "<h3>Shields</h3><p class=\"lead\">The <strong>Jurgen Wristguard</strong> gives +1 DEX and a 9.7% Guard. Pan Lid is the cheap one.</p>" +
+          "<h3>Tips</h3><div class=\"card\"><ul class=\"tight\">" +
+          "<li>Pick maps where one Savage Blow kills, not maps that match your level.</li>" +
+          "<li>Stay on DEX daggers. The STR versions swing a bit faster, but Golden River needs 65 STR (gear counts toward it).</li>" +
+          "<li>Steal can be retried after a failure, but each mob can only be robbed once. Open boss fights with Steal for the +35 Attack.</li>" +
+          "<li>A female thief gets the Dark Avenger overall at 35 (+6 LUK, 10 slots). It beats the Sauna Robe (+1 all stats, 10 slots).</li>" +
+          "</ul></div>";
+      }
+    },
+
+    assassin: {
+      name: "Assassin",
+      tagline: "Lucky Seven from 400 px. Safest of the three, pays for stars.",
+      lead: "<strong>+1 DEX and +4 LUK every level</strong>, which lands exactly on the 70 DEX the level 70 claw needs. <strong>Max Claw Mastery before Critical Throw:</strong> it raises Lucky Seven's minimum hit so kills become guaranteed, and it saves stars.",
+      advanceAt30: "Talk to Dark Lord in Kerning City, take his letter to the Thief Job Instructor at Construction Site North of Kerning City, collect 30 Dark Marbles there, and bring The Proof of a Hero back to Dark Lord",
+      first: { steps: L7_STEPS, gantt: L7_GANTT, final: L7_FINAL },
+      second: [
+        [30, 30, "Haste 1"],
+        [31, 31, "Claw Mastery +3"],
+        [32, 32, "Claw Mastery +2 (5), Claw Booster 1"],
+        [33, 37, "Claw Mastery +3 a level (maxed at 20 at 37)"],
+        [38, 47, "Critical Throw +3 a level (maxed at 30 at 47)"],
+        [48, 53, "Haste +3 a level (19 at 53)"],
+        [54, 54, "Haste +1 (maxed at 20), Claw Booster +2 (3)"],
+        [55, 56, "Claw Booster +3 a level (9 at 56)"],
+        [57, 62, "Critical Recovery +3 a level (18 at 62)"],
+        [63, 63, "Critical Recovery +2 (maxed at 20), Claw Booster +1 (10)"],
+        [64, 66, "Claw Booster +3 a level (19 at 66)"],
+        [67, 67, "Claw Booster +1 (maxed at 20), Drain +2"],
+        [68, 70, "Drain +3 a level (11 at 70). Drain is for healing; keep attacking with Lucky Seven"],
+        [71, 77, "Drain to 30"],
+        [78, 100, NO_USE_SP]
+      ],
+      gantt: [
+        ["Haste", [[30, 30], [48, 54]]],
+        ["Claw Mastery", [[31, 37]]],
+        ["Claw Booster", [[32, 32], [54, 56], [63, 67]]],
+        ["Critical Throw", [[38, 47]]],
+        ["Critical Recovery", [[57, 63]]],
+        ["Drain", [[67, 77]]]
+      ],
+      markers: [],
+      secondSkills: [
+        ["Claw Mastery", 20, "Mastery +10, Attack +20, 25% chance to get a star back", 20],
+        ["Critical Throw", 30, "Crit Rate +15%, Crit Damage +35%", 30],
+        ["Haste", 20, "Party +30 speed, +10 jump, 300 s", 20],
+        ["Claw Booster", 20, "Attack speed +2 stages, 300 s. Needs Claw Mastery 5", 20],
+        ["Critical Recovery", 20, "Crits heal 10% HP and MP, every 30 s at most", 20],
+        ["Drain", 30, "200% damage at Lv 11, 5% chance to absorb 8% as HP (240%, 12%, 15% at Lv 30)", 11]
+      ],
+      ap: function (L) {
+        var low = thiefLowAP(L);
+        if (low) return { text: low.text, base: "DEX " + low.dex + " / LUK " + low.luk };
+        if (L <= 70) return { text: "+1 DEX, +4 LUK", base: "DEX " + L + " / LUK " + (132 + 4 * (L - 30)) };
+        return { text: "All LUK, unless a new claw asks for DEX", base: "DEX 70 / LUK " + (292 + 5 * (L - 70)) };
+      },
+      weapons: CLAWS,
+      train: THIEF_TRAIN_LOW.concat([
+        [31, 39, "Transfer Area", "Stirge, 1-hit kills, about 3,100 EXP/min"],
+        [40, 49, "Ant Tunnel Park, Deep Ant Tunnel II", "Zombie and Horny Mushrooms, Evil Eye"],
+        [50, 64, "Monkey Forest II, Tree Dungeon", "Zombie Lupin and Lupin, about 5,300 EXP/min"],
+        [65, 100, "Forest of Evil II", "Nothing better on Victoria past the 60s"]
+      ]),
+      extras: function () {
+        var stars = [
+          ["Subi", 15, "500", "0.3"], ["Wolbi", 17, "500", "0.4"], ["Mokbi", 19, "700", "0.5"], ["Kumbi", 21, "700", "0.6"],
+          ["Tobi", 23, "1,000", "0.7"], ["Steely", 25, "1,000", "0.8"], ["Ilbi", 27, "800", "0.9"], ["Hwabi", 29, "800", "1.0"]
+        ];
+        var rows = stars.map(function (s) {
+          return "<tr" + (s[0] === "Tobi" ? " class=\"hl\"" : "") + "><td><strong>" + s[0] + "</strong></td><td class=\"num\">" + s[1] + "</td><td class=\"num\">" + s[2] + "</td><td class=\"num\">" + s[3] + " mesos</td></tr>";
+        }).join("");
+        return "<h3>Throwing stars</h3><p class=\"lead\">Recharging is cheap. The real cost is stars lost: about 2,700 an hour with max Claw Mastery, against 3,600 without. Only Subi (any grocer) and Wolbi (Max in the Kerning Civic Center, from the Helpful Stranger citizenship grade) are sold in shops; Mokbi and up come from the Free Market. There, <strong>Tobi is the value pick</strong> for its 1,000 stack; move to Steely or Ilbi once the mesos are there.</p>" +
+          "<div class=\"tbl-wrap\"><table><thead><tr><th>Star</th><th class=\"num\">Attack</th><th class=\"num\">Stack</th><th class=\"num\">Recharge per star</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+          "<h3>Tips</h3><div class=\"card\"><ul class=\"tight\">" +
+          "<li>Weaponcrafting makes three of your claws: Adamantium Guards (Lv 6), Dark Guardian (Lv 7) and Steel Avarice (Lv 8), so train that profession on this character. The Slains need Weaponcrafting 10, above this version's cap of 8.</li>" +
+          "<li>Every miss wastes 2 stars and 16 MP. Check your hit rate before you settle on a map.</li>" +
+          "<li>Scroll gloves for Attack, not Crit Rate: five Lesser Attack scrolls give about 6.5% more damage.</li>" +
+          "<li>A female thief gets the Dark Avenger overall at 35 (+6 LUK, 10 slots). It beats the Sauna Robe (+1 all stats, 10 slots).</li>" +
+          "</ul></div>";
+      }
+    },
+
+    il: {
+      name: "Ice/Lightning Wizard",
+      tagline: "Cold Beam, then Thunder Bolt on 6 mobs. Fastest leveler, most MP potions.",
+      lead: "<strong>INT first, with LUK added on a schedule so every wand fits on time:</strong> 5 LUK at levels 20, 25 and 30, then 2 a level to 40 and 1 a level to 63. Max Cold Beam first, then Thunder Bolt from 41. Advance at 10 with Grendel the Really Old in Ellinia, and take <strong>Kerning City citizenship</strong> at 12 for its INT overall and Magic Attack glove scrolls.",
+      advanceAt30: "Talk to Grendel the Really Old in Ellinia, take his letter to the Magician Job Instructor in The Forest North of Ellinia, collect 30 Dark Marbles there, and bring The Proof of a Hero back to Grendel",
+      firstSkillsTable: true,
+      first: {
+        steps: [
+          [10, 10, "Energy Bolt 1"],
+          [11, 11, "Energy Bolt +2, Improved MP Recovery 1"],
+          [12, 16, "Energy Bolt +3 a level (18 at 16)"],
+          [17, 17, "Energy Bolt +2 (maxed at 20), Magic Guard 1"],
+          [18, 18, "Magic Guard +2 (3, unlocks Magic Armor), Magic Armor 1"],
+          [19, 19, "Improved MP Recovery +2 (3, unlocks Max MP Increase), Magic Armor +1"],
+          [20, 25, "Magic Armor +3 a level (maxed at 20 at 25)"],
+          [26, 30, "Max MP Increase +3 a level (maxed at 15 at 30)"]
+        ],
+        gantt: [
+          ["Energy Bolt", [[10, 17]]],
+          ["Improved MP Rec.", [[11, 11], [19, 19]]],
+          ["Magic Guard", [[17, 18]]],
+          ["Magic Armor", [[18, 25]]],
+          ["Max MP Increase", [[26, 30]]]
+        ]
+      },
+      second: [
+        [30, 30, "Teleport 1"],
+        [31, 40, "Cold Beam +3 a level (maxed at 30 at 40)"],
+        [41, 50, "Thunder Bolt +3 a level (maxed at 30 at 50)"],
+        [51, 51, "MP Eater +3"],
+        [52, 57, "Meditation +3 a level (18 at 57)"],
+        [58, 58, "Meditation +2 (maxed at 20), MP Eater +1 (4)"],
+        [59, 63, "MP Eater +3 a level (19 at 63)"],
+        [64, 64, "MP Eater +1 (maxed at 20), Teleport +2 (3)"],
+        [65, 69, "Teleport +3 a level (18 at 69)"],
+        [70, 70, "Teleport +2 (maxed at 20), Slow 1"],
+        [71, 77, "Slow to 20"],
+        [78, 100, NO_USE_SP]
+      ],
+      gantt: [
+        ["Teleport", [[30, 30], [64, 70]]],
+        ["Cold Beam", [[31, 40]]],
+        ["Thunder Bolt", [[41, 50]]],
+        ["MP Eater", [[51, 51], [58, 64]]],
+        ["Meditation", [[52, 58]]],
+        ["Slow", [[70, 77]]]
+      ],
+      markers: [],
+      secondSkills: [
+        ["Cold Beam", 30, "Strong single target, slows. +25% on ice-weak mobs", 30],
+        ["Thunder Bolt", 30, "Hits up to 6 mobs, can electrocute", 30],
+        ["Meditation", 20, "Party Magic Attack +25, 300 s", 20],
+        ["MP Eater", 20, "50% chance to absorb 50% of a mob's max MP, at most once every 5 s", 20],
+        ["Teleport", 20, "Blink 150 px", 20],
+        ["Slow", 20, "Slows mobs", 1]
+      ],
+      ap: function (L) {
+        if (L <= 1) return { text: "Starting stats", base: "INT 12 / LUK 5" };
+        if (L <= 10) return { text: "All 5 AP into INT", base: "INT " + (12 + 5 * (L - 1)) + " / LUK 5" };
+        if (L <= 30) {
+          var luk = 5 + 5 * [20, 25, 30].filter(function (x) { return x <= L; }).length;
+          var int_ = 57 + 5 * (L - 10) - (luk - 5);
+          var isLukLevel = L === 20 || L === 25 || L === 30;
+          return { text: isLukLevel ? "This level: all 5 AP into LUK for the next wand" : "All 5 AP into INT", base: "INT " + int_ + " / LUK " + luk };
+        }
+        if (L <= 40) return { text: "+3 INT, +2 LUK", base: "INT " + (142 + 3 * (L - 30)) + " / LUK " + (20 + 2 * (L - 30)) };
+        if (L <= 63) return { text: "+4 INT, +1 LUK", base: "INT " + (172 + 4 * (L - 40)) + " / LUK " + (40 + (L - 40)) };
+        return { text: "All 5 AP into INT", base: "INT " + (264 + 5 * (L - 63)) + " / LUK 63" };
+      },
+      weapons: [
+        { lv: 1, name: "Any beginner weapon", atk: "", req: "" },
+        { lv: 10, name: "Wooden Wand", atk: "27", req: "20 INT. Flora the Fairy's shop in Ellinia. A free beginner wand comes with the advancement" },
+        { lv: 15, name: "Hardwood Wand", atk: "34", req: "30 INT. Flora's shop" },
+        { lv: 20, name: "Metal Wand", atk: "41", req: "40 INT, 10 LUK. Flora's shop" },
+        { lv: 25, name: "Ice Wand", atk: "48", req: "50 INT, 15 LUK. Flora's shop" },
+        { lv: 30, name: "Mithril Wand", atk: "55", req: "60 INT, 20 LUK. Arcforge 6" },
+        { lv: 35, name: "Wizard Wand", atk: "62", req: "70 INT, 25 LUK. Arcforge 7" },
+        { lv: 40, name: "Fairy Wand", atk: "69", req: "80 INT, 30 LUK. Arcforge 8" },
+        { lv: 45, name: "Arc Staff", atk: "73", req: "90 INT, 40 LUK. Free Market or drops (its Arcforge 9 recipe is above the cap of 8)" },
+        { lv: 50, name: "Cromi", atk: "83", req: "100 INT, 40 LUK. Free Market or drops (its Arcforge 10 recipe is above the cap of 8)" },
+        { lv: 55, name: "Thorns", atk: "87", req: "110 INT, 50 LUK" },
+        { lv: 60, name: "Evil Tale", atk: "97", req: "120 INT, 55 LUK" },
+        { lv: 65, name: "Evil Wings", atk: "101", req: "130 INT, 60 LUK" },
+        { lv: 70, name: "Angel Wings", atk: "111", req: "140 INT, 65 LUK. Base LUK is 63, so get 2 from gear" }
+      ],
+      train: [
+        [1, 9, "Maple Island, then Victoria Island", "Quests and snails. Advance at 10 with Grendel in Ellinia"],
+        [10, 14, "Rain-Forest East of Henesys, Hill West", "Energy Bolt"],
+        [15, 19, "Forest Up North (Tree Dungeon)", "Energy Bolt"],
+        [20, 30, "Transfer Area, Line 1 Area 1, Forest Up North", "Energy Bolt"],
+        [31, 40, "Transfer Area, then The Burnt Land I", "Cold Beam on Fire Boar (weak to ice), about 4,200 EXP/min at 40"],
+        [41, 50, "Ant Tunnel IV, or Line 2 Area 2", "Thunder Bolt on mushrooms or Wraiths, about 12,000 EXP/min at 50"],
+        [51, 60, "Ant Tunnel III", "Thunder Bolt, about 19,300 EXP/min at 60"],
+        [61, 100, "Line 1 Area 2", "Thunder Bolt on Jr. Wraith and Stirge, about 24,800 EXP/min"]
+      ],
+      extras: function () {
+        return "<h3>Tips</h3><div class=\"card\"><ul class=\"tight\">" +
+          "<li><strong>Always wear a shield</strong> (wands and staves are one-handed): Pan Lid early, Esther Shield at 35 for magic defense.</li>" +
+          "<li>Thunder Bolt on packs, Cold Beam on single mobs. Casting Thunder Bolt on one mob is the classic mistake.</li>" +
+          "<li>Weak to ice: Fire Boar, Copper Drake. Weak to lightning: Iron Hog, Lorang, Clang. Fairies resist lightning; Cold Eye, Croco, Ligator and Drake resist ice. Red Drake is also weak to ice. Weak takes 25% more, resistant 25% less.</li>" +
+          "<li>MP Eater gets nothing from mobs with no MP: pigs, Wild Boar, Ligator, Fire Boar.</li>" +
+          "<li>Orange and Lemon give 1 MP per meso, the best shop rate. Red Potion is the HP buy.</li>" +
+          "<li>Every 100 damage through Magic Guard 15 costs about 90 mesos to refill. That is why the default build keeps Magic Guard at 3.</li>" +
+          "<li>Scroll gloves for Magic Attack, not Crit Rate.</li>" +
+          "</ul></div>";
+      }
+    }
+  };
+
+  // ---------- helpers ----------
+  function inRange(rows, L) {
+    return rows.filter(function (r) { return L >= r[0] && L <= r[1]; });
+  }
+  function weaponAt(list, L) {
+    var cur = null, next = null;
+    list.forEach(function (w) {
+      if (w.lv <= L) cur = w;
+      else if (!next) next = w;
+    });
+    return { cur: cur, next: next };
+  }
+  function plan(key, route) {
+    var c = CLASSES[key];
+    if (key === "bandit") {
+      var r = c.routes[route];
+      return { first: r.first, second: r.second.concat(c.secondShared), gantt: r.gantt, markers: r.markers, weapons: r.weapons };
+    }
+    return { first: c.first, second: c.second, gantt: c.gantt, markers: c.markers, weapons: c.weapons };
+  }
+
+  function gantt(rows, min, max, L, markers) {
+    var span = max - min + 1;
+    function pct(v) { return ((v - min) / span) * 100; }
+    var ticks = "";
+    for (var t = Math.ceil(min / 5) * 5; t <= max; t += 5) {
+      ticks += "<span class=\"tick\" style=\"left:" + (pct(t) + 50 / span) + "%\">" + t + "</span>";
+    }
+    var body = rows.map(function (row) {
+      var bars = row[1].map(function (s) {
+        var a = s[0], b = s[1];
+        var cls = L > b ? "done" : (L >= a ? "now" : "");
+        return "<span class=\"g-bar " + cls + "\" style=\"left:" + pct(a) + "%;width:" + ((b - a + 1) / span * 100) + "%\" title=\"" + esc(row[0]) + ": Lv " + a + (a === b ? "" : " to " + b) + "\"></span>";
+      }).join("");
+      return "<div class=\"g-row\"><div class=\"g-label\">" + esc(row[0]) + "</div><div class=\"g-track\">" + bars + "</div></div>";
+    }).join("");
+    var overlay = "";
+    (markers || []).forEach(function (m) {
+      overlay += "<span class=\"g-mark\" style=\"left:" + pct(m[0]) + "%\"><span>" + esc(m[1]) + "</span></span>";
+    });
+    if (L >= min && L <= max) {
+      overlay += "<span class=\"g-now\" data-l=\"Lv " + L + "\" style=\"left:calc(" + (pct(L) + 50 / span) + "% - 1px)\"></span>";
+    }
+    return "<div class=\"gantt\"><div class=\"g-axis\"><div></div><div class=\"g-track\">" + ticks + "</div></div>" +
+      "<div class=\"g-body\">" + body + "<div class=\"g-overlay\">" + overlay + "</div></div></div>";
+  }
+
+  function weaponTable(list, L) {
+    var w = weaponAt(list, L);
+    return "<div class=\"tbl-wrap\"><table><thead><tr><th class=\"num\">Level</th><th>Weapon</th><th class=\"num\">Attack</th><th>Needs / where</th></tr></thead><tbody>" +
+      list.map(function (x) {
+        return "<tr" + (w.cur === x ? " class=\"hl\"" : "") + "><td class=\"num\">" + x.lv + "</td><td><strong>" + esc(x.name) + "</strong></td><td class=\"num\">" + esc(x.atk) + "</td><td>" + esc(x.req) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+  function trainTable(list, L) {
+    return "<div class=\"tbl-wrap\"><table><thead><tr><th class=\"num\">Level</th><th>Map</th><th>Notes</th></tr></thead><tbody>" +
+      list.map(function (x) {
+        var hl = L >= x[0] && L <= x[1];
+        var lv = x[1] >= 100 ? x[0] + "+" : x[0] + "-" + x[1];
+        return "<tr" + (hl ? " class=\"hl\"" : "") + "><td class=\"num\">" + lv + "</td><td><strong>" + esc(x[2]) + "</strong></td><td>" + esc(x[3]) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  // ---------- Faster EXP ----------
+  // EXP to the next level, from the release client (OSMS datamine): pre-Big Bang through 89, then x2.1 per level.
+  var EXP_NEXT = (function () {
+    var t = [0], prev = 0;
+    for (var l = 1; l <= 99; l++) {
+      var th = Math.floor(l * l / 3);
+      var e = l <= 5 ? (Math.floor(l * l / 2) + 15) * l : l <= 50 ? (th + 19) * th : Math.floor(prev * (l < 90 ? 1.0548 : 2.1));
+      t.push(e); prev = e;
+    }
+    return t;
+  })();
+  // Grade, contribution for that grade, character level needed (release client, OSMS datamine).
+  var CIT_GRADES = [[1, 0, 12], [2, 1500, 17], [3, 3500, 22], [4, 6000, 27], [5, 9000, 32], [6, 12500, 37], [7, 16500, 42], [8, 21000, 47], [9, 26000, 52], [10, 32000, 57]];
+  // Densest maps per level band, from NiaMeowDB's spawn-based ranking: map, max EXP/hr, main mob, its level,
+  // nearest potion shop, portals to it, note. Forgotten Hollow maps are left out because that area is not open.
+  var GRIND = [
+    [1, 10, [["L Forest I", 333525, "Ribbon Pig", 10, "Kerning City", 3, "Snails up to Ribbon Pigs, next to Kerning"],
+      ["The Tree That Grew II", 318571, "Slime", 6, "Ellinia", 4, "Slimes and Stumps only"],
+      ["Construction Site North of Kerning City", 297499, "Dark Stump", 11, "Kerning City", 3, "Red Snails early, Dark Stumps later"]]],
+    [11, 15, [["Line 1 <Area 1>", 640000, "Bubbling", 15, "Kerning City", 3, "Only Bubblings, packed tight"],
+      ["West Rocky Mountain III", 572857, "Green Mushroom", 14, "Perion", 5, "Mostly Green Mushrooms"],
+      ["Tree Dungeon, Forest Up North IV", 343571, "Green Mushroom", 14, "Ellinia", 5, "Green Mushrooms, quieter"]]],
+    [16, 20, [["Dangerous Steam", 671786, "Stirge", 20, "Ant Tunnel Park", 3, "Stirges plus Horny and Zombie Mushrooms"],
+      ["Transfer Area", 502143, "Stirge", 20, "Kerning City", 4, "Only Stirges, small map"],
+      ["Tree Dungeon, Forest Up North III", 434286, "Horny Mushroom", 22, "Ellinia", 5, "For when the subway is crowded"]]],
+    [21, 25, [["Ant Tunnel III", 1536786, "Zombie Mushroom", 24, "Ant Tunnel Park", 6, "Only Horny and Zombie Mushrooms"],
+      ["Deep Ant Tunnel I", 1078060, "Zombie Mushroom", 24, "Ant Tunnel Park", 2, "Mushrooms, Evil Eyes, a few Jr. Boogies"],
+      ["Ant Tunnel Park", 981785, "Evil Eye", 27, "Ant Tunnel Park", 0, "Potion shop right on the map"]]],
+    [26, 30, [["Deep Ant Tunnel I", 1078060, "Zombie Mushroom", 24, "Ant Tunnel Park", 2, "You can stay here until 30"],
+      ["Ant Tunnel Park", 981785, "Evil Eye", 27, "Ant Tunnel Park", 0, "Evil Eyes with mushrooms"],
+      ["The Cave of Evil Eye III", 680206, "Evil Eye", 27, "Ant Tunnel Park", 3, "Almost only Evil Eyes"]]],
+    [31, 35, [["Line 2 <Area 1>", 2151429, "Jr. Wraith", 34, "Kerning City", 5, "Jr. Wraiths, very dense"],
+      ["Line 1 <Area 2>", 1903929, "Jr. Wraith", 34, "Kerning City", 5, "Same mob, often quieter"],
+      ["The Burnt Land V", 1032143, "Fire Boar", 32, "Perion", 8, "Off the subway, long walk to a shop"]]],
+    [36, 40, [["A Look-Out Shed Around the Beach", 1162261, "Lorang", 38, "Florina Beach", 1, "Lorangs, shop one portal away"],
+      ["Lorang Lorang", 1108929, "Lorang", 38, "Florina Beach", 2, "Smaller Lorang map"],
+      ["Monkey Forest II", 1062500, "Zombie Lupin", 41, "Ellinia", 5, "Lupins, good into your 40s"]]],
+    [41, 45, [["Monkey Swamp III", 1138571, "Zombie Lupin", 41, "Kerning City", 9, "Zombie Lupins, low defense"],
+      ["Tree Dungeon, Monkey Forest II", 916429, "Zombie Lupin", 41, "Ellinia", 6, "Hidden street, fewer players"]]],
+    [46, 50, [["Line 2 <Area 2>", 3488571, "Wraith", 48, "Kerning City", 6, "The densest map on Victoria Island"],
+      ["Line 2 <Area 3>", 2962857, "Wraith", 48, "Kerning City", 7, "Only Wraiths"],
+      ["Line 1 <Area 4>", 2570714, "Wraith", 48, "Kerning City", 7, "Only Wraiths, a bit smaller"]]],
+    [51, 55, [["Line 2 <Area 2>", 3488571, "Wraith", 48, "Kerning City", 6, "Still the best map at these levels"],
+      ["Lorang and Clang", 1816786, "Clang", 49, "Florina Beach", 3, "Clangs with Lorangs"],
+      ["Dangerous Croko II", 1582500, "Croco", 52, "Kerning City", 6, "Crocos, on-level"]]],
+    [56, 100, [["Sleepy Dungeon V", 2585073, "Dark Stone Golem", 58, "Sleepywood", 5, "The best map past 55"],
+      ["Line 2 <Area 2>", 3488571, "Wraith", 48, "Kerning City", 6, "Still dense if you kill Wraiths fast"],
+      ["Sleepy Dungeon III", 1421809, "Dark Stone Golem", 58, "Sleepywood", 7, "Half the size of V, for when V is busy"]]]
+  ];
+  function grindBand(L) {
+    for (var i = 0; i < GRIND.length; i++) if (L >= GRIND[i][0] && L <= GRIND[i][1]) return GRIND[i];
+    return GRIND[GRIND.length - 1];
+  }
+  // Job quests for other classes are left out. Citizenship quests need your town (one at a time) and its grade.
+  function questPool(key, town, grade) {
+    var G = window.GAME_DATA;
+    if (!G || !G.quests) return [];
+    var skip = key === "il" ? { Warrior: 1, Bowman: 1, Thief: 1 } : { Warrior: 1, Bowman: 1, Magician: 1 };
+    return G.quests.filter(function (q) { return !skip[q.reg] && (!q.grade || (q.town === town && q.grade <= grade)); });
+  }
+  function questRows(list, L, done) {
+    return list.map(function (q) {
+      var isDone = done.indexOf(q.id) >= 0;
+      var pct = Math.round(q.exp / EXP_NEXT[L] * 100);
+      return "<tr" + (isDone ? " class=\"thin\"" : "") + ">" +
+        "<td><input type=\"checkbox\" data-qid=\"" + esc(q.id) + "\"" + (isDone ? " checked" : "") + " aria-label=\"Done: " + esc(q.n) + "\"></td>" +
+        "<td><strong>" + esc(q.n) + "</strong><br><span class=\"small muted\">" + esc(q.npc) + ", " + esc(q.reg) +
+          (q.after.length ? ". After: " + esc(q.after.join(", ")) : "") + "</span></td>" +
+        "<td class=\"num\">" + q.lv + "</td>" +
+        "<td class=\"num\"><strong>" + fmt(q.exp) + "</strong></td>" +
+        "<td class=\"num\">" + (pct < 1 ? "<1" : pct) + "%</td>" +
+        "<td class=\"small\">" + esc(q.need.join("; ") || "Just talk") + (q.items.length ? "<br><span class=\"muted\">Gives " + esc(q.items.join(", ")) + "</span>" : "") + "</td></tr>";
+    }).join("");
+  }
+  function fasterExp(key, L) {
+    var band = grindBand(L);
+    var town = store.get("cit.town." + key, L >= 12 ? "Kerning City" : "");
+    if (town !== "Kerning City" && town !== "Henesys") town = "";
+    var grade = Math.min(10, Math.max(1, parseInt(store.get("cit.grade." + key, 1), 10) || 1));
+    var showDone = !!store.get("quests.showdone." + key, false);
+    var done = store.get("quests.done." + key, []);
+    if (!Array.isArray(done)) done = [];
+    var pool = questPool(key, town, grade);
+    var now = pool.filter(function (q) { return q.lv <= L && (showDone || done.indexOf(q.id) < 0); })
+      .sort(function (a, b) { return b.exp - a.exp || b.lv - a.lv; }).slice(0, 12);
+    var soon = pool.filter(function (q) { return q.lv > L && q.lv <= L + 3 && done.indexOf(q.id) < 0; })
+      .sort(function (a, b) { return b.exp - a.exp; }).slice(0, 5);
+    var nextGrade = town ? CIT_GRADES[grade] || null : null;
+
+    var h = "<h2>Faster EXP</h2>" +
+      "<p class=\"lead\">Level " + L + " to " + (L + 1) + " takes <strong>" + fmt(EXP_NEXT[L] || 0) + " EXP</strong>. Below: the densest maps for your level and the quests that pay the most right now.</p>";
+    h += "<h3>Densest maps for levels " + band[0] + " to " + (band[1] >= 100 ? "70+" : band[1]) + "</h3>" +
+      "<div class=\"tbl-wrap\"><table><thead><tr><th>Map</th><th>Main monster</th><th class=\"num\">Max EXP/hr</th><th>Nearest potions</th><th>Notes</th></tr></thead><tbody>" +
+      band[2].map(function (m, i) {
+        return "<tr" + (i === 0 ? " class=\"hl\"" : "") + "><td><strong>" + esc(m[0]) + "</strong></td><td>" + esc(m[2]) + " (Lv " + m[3] + ")</td>" +
+          "<td class=\"num\">" + fmt(m[1]) + "</td><td>" + esc(m[4]) + (m[5] ? ", " + m[5] + " portal" + (m[5] > 1 ? "s" : "") : ", on the map") + "</td><td>" + esc(m[6]) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" +
+      "<p class=\"small muted\">Max EXP/hr is the ceiling if every monster died the moment it spawned, so nobody reaches it. Use it to compare maps. " +
+      "The \"Where to train\" table above already allows for your class's damage: when the two disagree, pick the map where you kill in one or two hits.</p>";
+
+    h += "<h3>Quests worth doing now</h3>";
+    if (!window.GAME_DATA) {
+      h += "<p class=\"muted\">Quest data is missing. Reload the page in a minute.</p>";
+    } else {
+      h += "<div class=\"sell-controls\"><label class=\"small muted\">Citizen of <select data-town>" +
+        [["", "No town yet"], ["Kerning City", "Kerning City"], ["Henesys", "Henesys"]].map(function (t) {
+          return "<option value=\"" + t[0] + "\"" + (town === t[0] ? " selected" : "") + ">" + t[1] + "</option>";
+        }).join("") + "</select></label>" +
+        (town ? "<label class=\"small muted\">Grade <select data-grade>" +
+          CIT_GRADES.map(function (g) { return "<option value=\"" + g[0] + "\"" + (grade === g[0] ? " selected" : "") + ">" + g[0] + "</option>"; }).join("") +
+          "</select></label>" : "") + "<label class=\"small muted\"><input type=\"checkbox\" data-showdone" + (showDone ? " checked" : "") + "> Show quests I ticked as done</label>" +
+        "<span class=\"small muted\">" + (!town ? "Citizenship opens at level 12, one town at a time." : nextGrade ? "Grade " + nextGrade[0] + " needs " + fmt(nextGrade[1]) + " contribution and level " + nextGrade[2] + "." : "Top grade.") + "</span></div>" +
+        "<div class=\"tbl-wrap\"><table class=\"quest-tbl\"><thead><tr><th>Done</th><th>Quest</th><th class=\"num\">Lv</th><th class=\"num\">EXP</th><th class=\"num\">Of a level</th><th>Needs</th></tr></thead><tbody>" +
+        (now.length ? questRows(now, L, done) : "<tr><td colspan=\"6\" class=\"muted\">Nothing left at this level. Nice.</td></tr>") + "</tbody></table></div>";
+      if (soon.length) {
+        h += "<p class=\"small\"><strong>Coming up by level " + (L + 3) + ":</strong> " + soon.map(function (q) {
+          return esc(q.n) + " (Lv " + q.lv + ", " + fmt(q.exp) + " EXP)";
+        }).join("; ") + ".</p>";
+      }
+      h += "<p class=\"small muted\">Quests from the OSMS Data Explorer datamine of the release game, best EXP first. A quest only shows once you reach its level; chains list the quest that comes before. Ticks are saved in this browser.</p>";
+    }
+    h += "<h3>Quick wins</h3><div class=\"card\"><ul class=\"tight\">" +
+      "<li><strong>Party up.</strong> In the closed test a party got 10% bonus EXP with 2 players, 20% with 3 and 30% with 4 or more.</li>" +
+      "<li><strong>Take quests for the map you are on.</strong> Kill counts and drops fill up while you grind anyway.</li>" +
+      "<li><strong>Citizenship:</strong> one town at a time; switching resets you to grade 1 there. The Community Board has daily quests (do them every day, they raise your grade) and one donation a week of 30 monster drops: 334 EXP at grade 1, up to 14,200 at grade 9.</li>" +
+      "<li><strong>Keep potions close.</strong> Maps far from a shop cost you the walk back every time you run out; carry a Return Scroll.</li>" +
+      "</ul></div>";
+    return h;
+  }
+
+  // ---------- class tab rendering ----------
+  function renderClass(key) {
+    var c = CLASSES[key];
+    var sec = document.getElementById("tab-" + key);
+    var L = Math.min(100, Math.max(1, parseInt(store.get("level." + key, 10), 10) || 10));
+    var route = key === "bandit" ? store.get("route.bandit", "B") : null;
+    if (route !== null && route !== "A" && route !== "B") route = "B";
+    var p = plan(key, route);
+
+    // phase + SP lines
+    var phase, sp = [], alert = "";
+    if (L < 10) {
+      phase = "Beginner";
+      sp.push("1 SP a level into the Beginner skills: Three Snails, Recovery and Nimble Feet (3 each). Every character starts on Maple Island");
+    } else if (L < 30) {
+      phase = "1st job: " + (key === "il" ? "Magician" : "Thief");
+    } else {
+      phase = "2nd job: " + c.name;
+    }
+    if (L >= 10 && L <= 30) inRange(p.first.steps, L).forEach(function (s) { sp.push(s[2]); });
+    if (L >= 30) inRange(p.second, L).forEach(function (s) { sp.push((L === 30 ? "After advancing: " : "") + s[2]); });
+    if (L === 10) alert = "Level 10: advance now. " + (key === "il" ? "Grendel the Really Old in Ellinia." : "Dark Lord in Kerning City.") + " No stat requirement.";
+    if (L === 12) alert = "Level 12: take Kerning City citizenship (Roxy, Kerning City Civic Center).";
+    if (L === 21) alert = "Level 21: Kerning PQ unlocks. Run it for the one-time King Slime quest scroll, the Squishy Shoes (wearable from level 28) and the reward box, not for EXP. See the Kerning PQ tab.";
+    if (L === 30) alert = "Level 30: 2nd job. " + c.advanceAt30 + ".";
+    if (key === "bandit" && route === "A" && L === 40) alert = "Level 40: use the SP Reset Scroll and switch to a dagger.";
+    if (L === 70) alert = "Level 70: 3rd job is not in the game yet. Keep training; 70 to 100 is a long grind.";
+
+    var ap = c.ap(L);
+    var tr = inRange(c.train, L)[0];
+    var w = weaponAt(p.weapons, L);
+
+    var routeSeg = "";
+    if (key === "bandit") {
+      routeSeg = "<div class=\"seg\" role=\"group\" aria-label=\"Bandit route\">" +
+        ["A", "B"].map(function (r) {
+          return "<button data-route=\"" + r + "\" aria-pressed=\"" + (route === r) + "\">" + esc(c.routes[r].label) + "</button>";
+        }).join("") + "</div>";
+    }
+
+    var html = "";
+    html += "<div class=\"class-head\"><h2>" + esc(c.name) + "</h2><span class=\"pill\">" + esc(c.tagline) + "</span></div>";
+    html += "<p class=\"lead\">" + c.lead + "</p>";
+    if (key === "bandit") {
+      html += "<div class=\"card\" style=\"margin-bottom:14px\"><div class=\"lvl-row\" style=\"margin:0\">" + routeSeg + "</div><p class=\"small\" style=\"margin:10px 0 0\">" + c.routes[route].blurb + "</p></div>";
+    }
+
+    // tracker
+    html += "<div class=\"card tracker\">" +
+      "<div class=\"lvl-row\">" +
+        "<div class=\"lvl-box\"><button data-step=\"-1\" aria-label=\"Level down\">-</button>" +
+        "<div class=\"lvl-num\"><div class=\"k\">My level</div><input type=\"number\" min=\"1\" max=\"100\" value=\"" + L + "\" aria-label=\"Level\"></div>" +
+        "<button data-step=\"1\" aria-label=\"Level up\">+</button></div>" +
+        "<input type=\"range\" min=\"1\" max=\"100\" value=\"" + L + "\" aria-label=\"Level slider\">" +
+        "<span class=\"phase\">" + esc(phase) + "</span>" +
+      "</div>" +
+      "<div class=\"grid g4\">" +
+        "<div class=\"tile\"><h4>Skill points this level</h4>" + (sp.length ? sp.map(function (s) { return "<p>" + esc(s) + "</p>"; }).join("") : "<p>None</p>") + "</div>" +
+        "<div class=\"tile\"><h4>Ability points</h4><p>" + esc(ap.text) + "</p><small>Base target at Lv " + L + ": " + esc(ap.base) + "</small></div>" +
+        "<div class=\"tile\"><h4>Train at</h4><p>" + esc(tr ? tr[2] : "") + "</p><small>" + esc(tr ? tr[3] : "") + "</small></div>" +
+        "<div class=\"tile\"><h4>Weapon</h4><p>" + esc(w.cur ? w.cur.name : "") + "</p><small>" + (w.next ? "Next: " + esc(w.next.name) + " at Lv " + w.next.lv + (w.next.req ? " (" + esc(w.next.req) + ")" : "") : "Top weapon for this cap") + "</small></div>" +
+      "</div>" +
+      (alert ? "<div class=\"alert\">" + esc(alert) + "</div>" : "") +
+      "</div>";
+
+    // 1st job
+    html += "<h2>1st job, levels 10 to 30</h2>";
+    if (key === "il") {
+      html += "<p class=\"lead\">The default build is cheap to run. The safer one stops Magic Armor at 8 and puts those 12 points into Magic Guard (15): more survivable, more MP potions. Take Energy Bolt over Magic Claw: same damage, less MP, more range.</p>";
+      html += "<div class=\"tbl-wrap\"><table><thead><tr><th>Skill</th><th class=\"num\">Max</th><th class=\"num\">Default</th><th class=\"num\">Safer</th></tr></thead><tbody>" +
+        [["Energy Bolt", 20, 20, 20], ["Improved MP Recovery", 15, 3, 3], ["Max MP Increase", 15, 15, 15], ["Magic Guard", 15, 3, 15], ["Magic Armor", 20, 20, 8], ["Magic Claw", 20, 0, 0]].map(function (r) {
+          return "<tr><td><strong>" + r[0] + "</strong></td><td class=\"num\">" + r[1] + "</td><td class=\"num\">" + r[2] + "</td><td class=\"num\">" + r[3] + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    } else {
+      html += "<p class=\"lead\">61 SP from level 10 to 30. " + (key === "bandit" && route === "B" ? "Dagger build: Double Stab first." : "Lucky Seven build: the same for the Assassin and a Route A Bandit.") + "</p>";
+      html += "<div class=\"tbl-wrap\"><table><thead><tr><th>Skill</th><th class=\"num\">Max</th><th>What it does</th><th class=\"num\">At Lv 30</th></tr></thead><tbody>" +
+        THIEF_SKILLS.map(function (s) {
+          var v = p.first.final[s[0]];
+          return "<tr" + (v ? "" : " class=\"muted\"") + "><td><strong>" + s[0] + "</strong></td><td class=\"num\">" + s[1] + "</td><td>" + esc(s[2]) + "</td><td class=\"num\">" + (v ? "<strong>" + v + "</strong>" : "0") + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+    html += "<h3>When to spend it</h3><div class=\"card\">" + gantt(p.first.gantt, 10, 30, L, []) + "</div>";
+
+    // 2nd job
+    html += "<h2>2nd job, levels 30 to 70</h2>";
+    html += "<p class=\"lead\">121 SP from 30 to 70. Levels 71 to 77 finish the last skill.</p>";
+    html += "<div class=\"tbl-wrap\"><table><thead><tr><th>Skill</th><th class=\"num\">Max</th><th>What it does</th><th class=\"num\">At Lv 70</th></tr></thead><tbody>" +
+      c.secondSkills.map(function (s) {
+        return "<tr><td><strong>" + s[0] + "</strong></td><td class=\"num\">" + s[1] + "</td><td>" + esc(s[2]) + "</td><td class=\"num\"><strong>" + s[3] + "</strong></td></tr>";
+      }).join("") + "</tbody></table></div>";
+    html += "<h3>When to spend it</h3><div class=\"card\">" + gantt(p.gantt, 30, 77, L, p.markers) + "</div>";
+    if (key === "bandit" && route === "A") {
+      html += "<p class=\"small muted\">The reset at 40 wipes the Haste and Nimble Recovery you bought in your 30s. You level both again later. 1st job after the reset: Nimble Body 15, Disorder 6, Dark Sight 20, Double Stab 20.</p>";
+    }
+
+    // weapons + training
+    html += "<h2>" + (key === "il" ? "Wands and staves" : key === "assassin" ? "Claws" : "Weapons") + "</h2>";
+    html += weaponTable(p.weapons, L);
+    html += "<h2>Where to train</h2>";
+    html += trainTable(c.train, L);
+    html += fasterExp(key, L);
+    html += c.extras();
+
+    sec.innerHTML = html;
+
+    // wire up controls
+    function setLevel(v) {
+      v = Math.min(100, Math.max(1, parseInt(v, 10) || 1));
+      store.set("level." + key, v);
+      var y = window.scrollY;
+      renderClass(key);
+      window.scrollTo(0, y);
+    }
+    sec.querySelectorAll("[data-step]").forEach(function (b) {
+      b.addEventListener("click", function () { setLevel(L + parseInt(b.getAttribute("data-step"), 10)); });
+    });
+    var num = sec.querySelector(".lvl-num input");
+    num.addEventListener("change", function () { setLevel(num.value); });
+    num.addEventListener("keydown", function (e) { if (e.key === "Enter") setLevel(num.value); });
+    var rng = sec.querySelector("input[type=range]");
+    rng.addEventListener("input", function () { num.value = rng.value; });
+    rng.addEventListener("change", function () { setLevel(rng.value); });
+    sec.querySelectorAll("[data-route]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        store.set("route.bandit", b.getAttribute("data-route"));
+        var y = window.scrollY;
+        renderClass(key);
+        window.scrollTo(0, y);
+      });
+    });
+    function rerender() { var y = window.scrollY; renderClass(key); window.scrollTo(0, y); }
+    var townEl = sec.querySelector("[data-town]");
+    if (townEl) townEl.addEventListener("change", function () { store.set("cit.town." + key, townEl.value); rerender(); });
+    var gradeEl = sec.querySelector("[data-grade]");
+    if (gradeEl) gradeEl.addEventListener("change", function () { store.set("cit.grade." + key, parseInt(gradeEl.value, 10) || 1); rerender(); });
+    var showEl = sec.querySelector("[data-showdone]");
+    if (showEl) showEl.addEventListener("change", function () { store.set("quests.showdone." + key, showEl.checked); rerender(); });
+    sec.querySelectorAll("[data-qid]").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var done = store.get("quests.done." + key, []);
+        if (!Array.isArray(done)) done = [];
+        var id = cb.getAttribute("data-qid"), at = done.indexOf(id);
+        if (cb.checked && at < 0) done.push(id);
+        if (!cb.checked && at >= 0) done.splice(at, 1);
+        store.set("quests.done." + key, done);
+        rerender();
+      });
+    });
+  }
+
+  // ---------- checklist ----------
+  var CHECK = [
+    "Pre-download. Nexon Launcher: on launch day flip the MapleStory Classic World toggle and download the client. Steam: install and update the base MapleStory game now to shrink the launch patch.",
+    "Log in when Founder's Access opens: Tuesday 6 October, 18:00 UTC (21:00 Israel time).",
+    "Claim the Founder's Package from the in-game mailbox before 30 November.",
+    "At level 10, take \"[Event] Founder's First Step\" from Maple Administrator and check in daily. Rewards are once per account per day, so claim on one character.",
+    "Choose Classic or Modern (WASD) keys.",
+    "Kerning City citizenship at level 12 on all three characters.",
+    "Decide the Bandit route (reset scroll or pure dagger) before level 30."
+  ];
+  function renderChecklist() {
+    var done = store.get("check", {});
+    var ul = document.getElementById("checklist");
+    ul.innerHTML = CHECK.map(function (t, i) {
+      return "<li><input type=\"checkbox\" id=\"ck" + i + "\"" + (done[i] ? " checked" : "") + "><label for=\"ck" + i + "\">" + esc(t) + "</label></li>";
+    }).join("");
+    ul.querySelectorAll("input").forEach(function (cb, i) {
+      cb.addEventListener("change", function () {
+        var d = store.get("check", {});
+        d[i] = cb.checked;
+        store.set("check", d);
+      });
+    });
+  }
+
+  // ---------- launch countdowns ----------
+  var FA = new Date("2026-10-06T18:00:00Z");
+  var GL = new Date("2026-10-21T18:00:00Z");
+  function fmtWhen(d) {
+    try {
+      return d.toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " your time";
+    } catch (e) { return d.toUTCString(); }
+  }
+  function fmtCount(d) {
+    var ms = d - new Date();
+    if (ms <= 0) return "Live now";
+    var m = Math.floor(ms / 60000), days = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+    return "Starts in " + (days ? days + "d " : "") + h + "h " + mm + "m";
+  }
+  function tick() {
+    document.getElementById("fa-count").textContent = fmtCount(FA);
+    document.getElementById("gl-count").textContent = fmtCount(GL);
+  }
+  document.getElementById("fa-when").textContent = fmtWhen(FA);
+  document.getElementById("gl-when").textContent = fmtWhen(GL);
+  tick();
+  setInterval(tick, 30000);
+
+  // ---------- tabs ----------
+  // ---------- KPQ puzzle trackers ----------
+  function combos(labels, k) {
+    var out = [];
+    (function rec(start, cur) {
+      if (cur.length === k) { out.push(cur.slice()); return; }
+      for (var i = start; i < labels.length; i++) { cur.push(labels[i]); rec(i + 1, cur); cur.pop(); }
+    })(0, []);
+    return out;
+  }
+  var PUZZLES = [
+    { id: "ropes", title: "Stage 2: ropes", rows: [["A", "B"], ["C", "D"]],
+      desc: "Four unmarked ropes. A and B hang from the high branch, C and D from the low ones. Three members hang on, one rope stays empty.",
+      name: function (c) { return "Leave " + ["A", "B", "C", "D"].filter(function (x) { return c.indexOf(x) < 0; })[0] + " empty"; } },
+    { id: "kittens", title: "Stage 3: kittens", rows: [["1", "2", "3", "4", "5"]],
+      desc: "Five platforms, named by how many kittens sit on each. The list that usually circulates has 9 and leaves out 3-4-5.",
+      name: function (c) { return c.join("-"); } },
+    { id: "barrels", title: "Stage 4: barrels", rows: [["1"], ["2", "3"], ["4", "5", "6"]],
+      desc: "Six numbered barrels in a stack: 1 on top, then 2 and 3, then 4, 5 and 6.",
+      name: function (c) { return c.join("-"); } }
+  ];
+  function renderPuzzles() {
+    var host = document.getElementById("kpq-puzzles");
+    host.innerHTML = PUZZLES.map(function (p) {
+      var labels = [].concat.apply([], p.rows);
+      var list = combos(labels, 3);
+      var tried = store.get("kpq." + p.id, []);
+      var btns = list.map(function (c, i) {
+        var key = c.join("");
+        var mini = p.rows.map(function (r) {
+          return "<span class=\"r\">" + r.map(function (x) {
+            return "<span class=\"d" + (c.indexOf(x) >= 0 ? " on" : "") + "\">" + x + "</span>";
+          }).join("") + "</span>";
+        }).join("");
+        return "<button class=\"combo\" data-p=\"" + p.id + "\" data-k=\"" + key + "\" aria-pressed=\"" + (tried.indexOf(key) >= 0) + "\">" +
+          "<span class=\"n\">Try " + (i + 1) + "</span><span class=\"mini\">" + mini + "</span><span class=\"nm\">" + esc(p.name(c)) + "</span></button>";
+      }).join("");
+      return "<div class=\"card\"><div class=\"pz-head\"><strong>" + esc(p.title) + "</strong>" +
+        "<span class=\"muted small\">Tried " + tried.length + " of " + list.length + "</span>" +
+        "<button class=\"pz-reset\" data-reset=\"" + p.id + "\">Reset</button></div>" +
+        "<p class=\"small muted\" style=\"margin:6px 0 0\">" + esc(p.desc) + "</p>" +
+        "<div class=\"combos\">" + btns + "</div></div>";
+    }).join("");
+    host.querySelectorAll(".combo").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-p"), k = b.getAttribute("data-k");
+        var t = store.get("kpq." + id, []);
+        var at = t.indexOf(k);
+        if (at >= 0) t.splice(at, 1); else t.push(k);
+        store.set("kpq." + id, t);
+        renderPuzzles();
+      });
+    });
+    host.querySelectorAll("[data-reset]").forEach(function (b) {
+      b.addEventListener("click", function () { store.set("kpq." + b.getAttribute("data-reset"), []); renderPuzzles(); });
+    });
+  }
+
+  // ---------- ore price chart (MesoWatch, first 3 days of sales) ----------
+  var ORES = [
+    { name: "Garnet Ore", typ: 1599, lo: 1000, hi: 2199, sold: 594, npc: 40, gem: "#c0262d" },
+    { name: "Aquamarine Ore", typ: 500, lo: 399, hi: 800, sold: 245, npc: 40, gem: "#2f7de1" },
+    { name: "Diamond Ore", typ: 400, lo: 300, hi: 500, sold: 109, npc: 240, gem: "#d6dde8" },
+    { name: "Iron Ore", typ: 399, lo: 299, hi: 500, sold: 1034, npc: 20, gem: "#8e9bb0" },
+    { name: "Amethyst Ore", typ: 333, lo: 262, hi: 500, sold: 80, npc: 200, gem: "#b0306e" },
+    { name: "Sapphire Ore", typ: 300, lo: 250, hi: 399, sold: 99, npc: 120, gem: "#5aa0e6" },
+    { name: "Mithril Ore", typ: 299, lo: 200, hi: 350, sold: 295, npc: 40, gem: "#3fb6c9" },
+    { name: "Gold Ore", typ: 299, lo: 220, hi: 399, sold: 89, npc: 60, gem: "#e8b923" },
+    { name: "Topaz Ore", typ: 299, lo: 200, hi: 399, sold: 68, npc: 80, gem: "#e9d33a" },
+    { name: "Opal Ore", typ: 299, lo: 230, hi: 400, sold: 52, npc: 160, gem: "#a9cdb6" },
+    { name: "Emerald Ore", typ: 288, lo: 200, hi: 374, sold: 119, npc: 80, gem: "#19a99a" },
+    { name: "Silver Ore", typ: 280, lo: 199, hi: 350, sold: 149, npc: 80, gem: "#b9bcc2" },
+    { name: "Bronze Ore", typ: 250, lo: 199, hi: 399, sold: 555, npc: 20, gem: "#c08060" },
+    { name: "Orihalcon Ore", typ: 200, lo: 150, hi: 299, sold: 55, npc: 100, gem: "#d44fc0" },
+    { name: "Adamantium Ore", typ: 199, lo: 142, hi: 299, sold: 28, npc: 60, gem: "#f07a1e" }
+  ];
+  function fmt(n) { return Number(n).toLocaleString("en-US"); }
+  function gemSvg(c) {
+    return "<svg width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" aria-hidden=\"true\">" +
+      "<path d=\"M3 16 L12 22 L21 16 L19 12 L5 12 Z\" fill=\"#7d828c\" stroke=\"rgba(0,0,0,.35)\" stroke-width=\".8\"/>" +
+      "<path d=\"M7 3 L17 3 L21 8.5 L12 18 L3 8.5 Z\" fill=\"" + c + "\" stroke=\"rgba(0,0,0,.4)\" stroke-width=\".8\"/>" +
+      "<path d=\"M7 3 L12 8.5 L17 3 Z\" fill=\"rgba(255,255,255,.5)\"/>" +
+      "<path d=\"M3 8.5 L12 8.5 L12 18 Z\" fill=\"rgba(0,0,0,.14)\"/></svg>";
+  }
+  function renderOres() {
+    var host = document.getElementById("ore-chart");
+    if (!host) return;
+    var MAX = 2250, TICKS = [0, 500, 1000, 1500, 2000];
+    function pct(v) { return (v / MAX * 100).toFixed(2) + "%"; }
+    var total = ORES.reduce(function (s, o) { return s + o.sold; }, 0);
+    document.getElementById("ore-total").textContent = fmt(total);
+    var grid = TICKS.map(function (t) { return "<i class=\"grid\" style=\"left:" + pct(t) + "\"></i>"; }).join("");
+    var html = "<div class=\"ore-axis\" aria-hidden=\"true\"><span class=\"ax-name\">Ore</span><div class=\"ax-ticks\">" +
+      TICKS.map(function (t) { return "<span style=\"left:" + pct(t) + "\">" + fmt(t) + "</span>"; }).join("") +
+      "</div><span class=\"ax-price\">Typical price</span></div>";
+    html += ORES.map(function (o, i) {
+      var label = o.name + ": typical sale " + fmt(o.typ) + " mesos, most sales " + fmt(o.lo) + " to " + fmt(o.hi) + ", " + fmt(o.sold) + " sold, NPC pays " + fmt(o.npc);
+      return "<div class=\"ore-row" + (i === 0 ? " hot" : "") + "\" role=\"listitem\" tabindex=\"0\" data-i=\"" + i + "\" aria-label=\"" + esc(label) + "\">" +
+        "<div class=\"ore-name\">" + gemSvg(o.gem) + "<div><b>" + esc(o.name) + "</b><small>most sales: " + fmt(o.lo) + " to " + fmt(o.hi) + " · NPC " + fmt(o.npc) + "</small></div></div>" +
+        "<div class=\"ore-track\">" + grid +
+          "<span class=\"bar\" style=\"width:" + pct(o.typ) + "\"></span>" +
+          "<span class=\"rng\" style=\"left:" + pct(o.lo) + ";width:" + ((o.hi - o.lo) / MAX * 100).toFixed(2) + "%\"></span>" +
+        "</div>" +
+        "<div class=\"ore-price\"><b>" + fmt(o.typ) + "</b><small>" + fmt(o.sold) + " sold</small></div>" +
+      "</div>";
+    }).join("");
+    host.innerHTML = html;
+
+    var tip = document.getElementById("ore-tip");
+    var card = host.closest(".ore-card");
+    function show(o, x, y) {
+      tip.innerHTML = "<b>" + esc(o.name) + "</b><dl>" +
+        "<dt>Typical sale</dt><dd>" + fmt(o.typ) + "</dd>" +
+        "<dt>Most sales</dt><dd>" + fmt(o.lo) + " to " + fmt(o.hi) + "</dd>" +
+        "<dt>Sold, first 3 days</dt><dd>" + fmt(o.sold) + "</dd>" +
+        "<dt>NPC pays</dt><dd>" + fmt(o.npc) + "</dd>" +
+        "<dt>Sale vs NPC</dt><dd>" + Math.round(o.typ / o.npc) + "x</dd>" +
+        "<dt>Quick sale at</dt><dd>" + fmt(o.lo) + "</dd></dl>";
+      tip.hidden = false;
+      var cr = card.getBoundingClientRect();
+      var w = tip.offsetWidth, h = tip.offsetHeight;
+      var left = Math.min(Math.max(8, x - cr.left + 14), cr.width - w - 8);
+      var top = y - cr.top + 16;
+      if (top + h > cr.height - 4) top = y - cr.top - h - 12;
+      tip.style.left = left + "px";
+      tip.style.top = top + "px";
+    }
+    host.querySelectorAll(".ore-row").forEach(function (row) {
+      var o = ORES[+row.getAttribute("data-i")];
+      row.addEventListener("mousemove", function (e) { show(o, e.clientX, e.clientY); });
+      row.addEventListener("mouseleave", function () { tip.hidden = true; });
+      row.addEventListener("focus", function () { var r = row.getBoundingClientRect(); show(o, r.left + r.width / 2, r.bottom - 6); });
+      row.addEventListener("blur", function () { tip.hidden = true; });
+    });
+  }
+
+  // ---------- What to sell (live NiaMeowDB Free Market medians, from prices.js) ----------
+  var KERNING_DONATIONS = ["Red Snail Shell", "Orange Mushroom Cap", "Leaf", "Pig's Ribbon", "Octopus Leg", "Bubbling's Huge Bubble",
+    "Firewood", "Stirge Wing", "Charm of the Undead", "Wild Boar Tooth", "Evil Eye Tail", "Ligator Skin", "Fire Boar's Tooth",
+    "Tablecloth", "Lupin's Banana", "Cold Eye Tail", "Tortie Shell", "Medicine With Weird Vibes"];
+  var SELL_CATS = [["all", "All"], ["Etc", "Drops & ores"], ["Scrolls", "Scrolls"], ["Use", "Food & use"], ["Equip", "Gear"], ["Cash", "NX items"]];
+  function sellCat(i) {
+    if (i.type === "Use") return i.sub === "Scroll" ? "Scrolls" : "Use";
+    if (i.type === "Etc") return "Etc";
+    if (i.type === "Equip") return "Equip";
+    if (/^Cash/.test(i.type)) return "Cash";
+    return "Other";
+  }
+  // ---------- Price trends (price-history.js: MesoWatch daily averages, saved run after run) ----------
+  var PH = window.PRICE_HISTORY && window.PRICE_HISTORY.dates ? window.PRICE_HISTORY : null;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  // Every day that item sold, oldest first: { d: "2026-10-19", a: average price, v: sales that day }.
+  function histFor(name) {
+    if (!PH || !PH.items[name]) return [];
+    var c = PH.items[name], out = [];
+    PH.dates.forEach(function (d, i) { if (c[i]) out.push({ d: d, a: c[i][0], v: c[i][1] }); });
+    return out;
+  }
+  // Last 7 days: sales-weighted average of the newest 2 selling days against the oldest 2. Needs 3+ days and 3+ sales a side.
+  function trendOf(name) {
+    if (!PH) return null;
+    var cut = PH.dates.slice(-7)[0];
+    var h = histFor(name).filter(function (p) { return p.d >= cut; });
+    if (h.length < 3) return null;
+    function wavg(pts) { var s = 0, n = 0; pts.forEach(function (p) { s += p.a * p.v; n += p.v; }); return { a: n ? s / n : 0, n: n }; }
+    var a = wavg(h.slice(0, 2)), b = wavg(h.slice(-2));
+    if (a.n < 3 || b.n < 3 || !a.a) return null;
+    return { pct: (b.a - a.a) / a.a * 100, from: a.a, to: b.a, pts: h };
+  }
+  function trendTxt(t) {
+    if (!t) return "";
+    if (Math.abs(t.pct) < 3) return "steady";
+    return (t.pct > 0 ? "▲ up " : "▼ down ") + Math.round(Math.abs(t.pct)) + "%";
+  }
+  function fmtShort(n) {
+    if (n >= 1e6) return (Math.round(n / 1e5) / 10) + "M";
+    if (n >= 1e4) return Math.round(n / 1e3) + "K";
+    if (n >= 1e3) return (Math.round(n / 100) / 10) + "K";
+    return String(Math.round(n));
+  }
+  function dayLabel(d) {
+    var t = new Date(d + "T12:00:00Z");
+    return isNaN(t) ? d : t.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  }
+  // A 72x22 sparkline of the last 7 days, placed by date so a day with no sales leaves a gap in spacing.
+  function sparkSvg(t) {
+    if (!t || t.pts.length < 2) return "";
+    var W = 72, H = 22, P = 4, days = PH.dates.slice(-7);
+    var vals = t.pts.map(function (p) { return p.a; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    var xy = t.pts.map(function (p) {
+      var i = days.indexOf(p.d);
+      return [P + (W - 2 * P) * i / (days.length - 1), hi === lo ? H / 2 : P + (H - 2 * P) * (1 - (p.a - lo) / (hi - lo))];
+    });
+    var path = xy.map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join("");
+    var e = xy[xy.length - 1];
+    return "<svg class=\"spark\" width=\"" + W + "\" height=\"" + H + "\" viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Last 7 days: " +
+      fmt(Math.round(t.from)) + " to " + fmt(Math.round(t.to)) + "\"><path d=\"" + path + "\" fill=\"none\" stroke=\"var(--chart-line)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" +
+      "<circle cx=\"" + e[0].toFixed(1) + "\" cy=\"" + e[1].toFixed(1) + "\" r=\"3\" fill=\"var(--chart-line)\" stroke=\"var(--surface)\" stroke-width=\"2\"/></svg>";
+  }
+  function trendCell(name) {
+    var t = trendOf(name);
+    return "<td class=\"trend-cell\">" + (t ? sparkSvg(t) + "<span class=\"t\">" + trendTxt(t) + "</span>" : "<span class=\"t\">not enough sales</span>") + "</td>";
+  }
+
+  // The full chart: daily average price (line) over sales per day (bars), two charts sharing the dates, never two y-axes.
+  var trendShown = null;
+  function showTrend(name) {
+    var card = document.getElementById("trend-card");
+    var h = histFor(name);
+    trendShown = h.length ? name : null;
+    if (!h.length) { card.hidden = true; return; }
+    card.hidden = false;
+    var t = trendOf(name);
+    document.getElementById("trend-title").textContent = name + ": daily average sale price";
+    document.getElementById("trend-sub").textContent = (t ? trendTxt(t) + " over the last 7 days. " : "Too few sales for a trend yet. ") +
+      "Windia, from MesoWatch.";
+    document.querySelector("#trend-table tbody").innerHTML = h.slice().reverse().map(function (p) {
+      return "<tr><td>" + esc(dayLabel(p.d)) + "</td><td class=\"num\">" + fmt(p.a) + "</td><td class=\"num\">" + p.v + "</td></tr>";
+    }).join("");
+    drawTrendChart(document.getElementById("trend-chart"), h);
+  }
+  function drawTrendChart(el, h) {
+    var first = PH.dates.indexOf(h[0].d), days = PH.dates.slice(first);
+    var W = Math.max(280, el.clientWidth || 600), L = 48, R = 56, T = 12, PHt = 170, GAP = 18, VHt = 46, B = 22;
+    var Hh = T + PHt + GAP + VHt + B;
+    var vals = h.map(function (p) { return p.a; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    var span = hi - lo || hi * 0.1 || 1;
+    var step = Math.pow(10, Math.floor(Math.log10(span / 3)));
+    [1, 2, 2.5, 5, 10].some(function (m) { if (span / (step * m) <= 4) { step *= m; return true; } return false; });
+    var yLo = Math.max(0, Math.floor((lo - span * 0.15) / step) * step), yHi = Math.ceil((hi + span * 0.15) / step) * step;
+    var vMax = Math.max.apply(null, h.map(function (p) { return p.v; }));
+    var xAt = function (i) { return days.length === 1 ? L + (W - L - R) / 2 : L + (W - L - R) * i / (days.length - 1); };
+    var yAt = function (v) { return T + PHt * (1 - (v - yLo) / (yHi - yLo)); };
+    var vTop = T + PHt + GAP;
+    var s = [];
+    s.push("<svg width=\"" + W + "\" height=\"" + Hh + "\" viewBox=\"0 0 " + W + " " + Hh + "\" role=\"img\" aria-hidden=\"true\">");
+    for (var g = yLo; g <= yHi + 1e-9; g += step) {
+      var gy = yAt(g).toFixed(1);
+      s.push("<line x1=\"" + L + "\" x2=\"" + (W - R) + "\" y1=\"" + gy + "\" y2=\"" + gy + "\" stroke=\"var(--border)\" stroke-width=\"1\"/>");
+      s.push("<text x=\"" + (L - 8) + "\" y=\"" + gy + "\" text-anchor=\"end\" dominant-baseline=\"middle\">" + fmtShort(g) + "</text>");
+    }
+    var pts = h.map(function (p) { return [xAt(days.indexOf(p.d)), yAt(p.a)]; });
+    s.push("<path d=\"" + pts.map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join("") +
+      "\" fill=\"none\" stroke=\"var(--chart-line)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>");
+    pts.forEach(function (q) { s.push("<circle cx=\"" + q[0].toFixed(1) + "\" cy=\"" + q[1].toFixed(1) + "\" r=\"4\" fill=\"var(--chart-line)\" stroke=\"var(--surface)\" stroke-width=\"2\"/>"); });
+    var e = pts[pts.length - 1];
+    s.push("<text class=\"end\" x=\"" + (e[0] + 9).toFixed(1) + "\" y=\"" + e[1].toFixed(1) + "\" dominant-baseline=\"middle\">" + fmtShort(h[h.length - 1].a) + "</text>");
+    // Sales per day: bars from one baseline, capped at 24px wide, rounded only at the top.
+    var bw = Math.min(24, Math.max(4, (W - L - R) / Math.max(1, days.length) * 0.5));
+    s.push("<text x=\"" + (L - 8) + "\" y=\"" + (vTop + 4) + "\" text-anchor=\"end\" dominant-baseline=\"hanging\">" + vMax + "</text>");
+    s.push("<text x=\"" + (L - 8) + "\" y=\"" + (vTop + 17) + "\" text-anchor=\"end\" dominant-baseline=\"hanging\">sales</text>");
+    s.push("<line x1=\"" + L + "\" x2=\"" + (W - R) + "\" y1=\"" + (vTop + VHt) + "\" y2=\"" + (vTop + VHt) + "\" stroke=\"var(--border)\" stroke-width=\"1\"/>");
+    h.forEach(function (p) {
+      var bh = Math.max(2, VHt * p.v / vMax), x = xAt(days.indexOf(p.d)) - bw / 2, y = vTop + VHt - bh, r = Math.min(4, bh / 2, bw / 2);
+      s.push("<path d=\"M" + x.toFixed(1) + " " + (vTop + VHt) + "V" + (y + r).toFixed(1) + "Q" + x.toFixed(1) + " " + y.toFixed(1) + " " + (x + r).toFixed(1) + " " + y.toFixed(1) +
+        "H" + (x + bw - r).toFixed(1) + "Q" + (x + bw).toFixed(1) + " " + y.toFixed(1) + " " + (x + bw).toFixed(1) + " " + (y + r).toFixed(1) + "V" + (vTop + VHt) + "Z\" fill=\"var(--chart-vol)\"/>");
+    });
+    var every = days.length > 10 ? Math.ceil(days.length / 7) : 1;
+    days.forEach(function (d, i) {
+      if (i % every && i !== days.length - 1) return;
+      s.push("<text x=\"" + xAt(i).toFixed(1) + "\" y=\"" + (Hh - 6) + "\" text-anchor=\"middle\">" + esc(dayLabel(d)) + "</text>");
+    });
+    s.push("<line class=\"xh\" x1=\"0\" x2=\"0\" y1=\"" + T + "\" y2=\"" + (vTop + VHt) + "\" stroke=\"var(--muted)\" stroke-width=\"1\" visibility=\"hidden\"/>");
+    s.push("<rect class=\"hit\" x=\"" + L + "\" y=\"0\" width=\"" + (W - L - R) + "\" height=\"" + (Hh - B) + "\" fill=\"transparent\"/>");
+    s.push("</svg>");
+    el.innerHTML = s.join("") + "<div class=\"ph-tip\" hidden></div>";
+    var svg = el.querySelector("svg"), xh = el.querySelector(".xh"), tip = el.querySelector(".ph-tip"), cur = -1;
+    function pointAt(i) {
+      cur = i;
+      var p = h[i], x = pts[i][0];
+      xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.setAttribute("visibility", "visible");
+      tip.textContent = "";
+      var strong = document.createElement("strong"), key = document.createElement("span"), line2 = document.createElement("div");
+      key.className = "k";
+      strong.appendChild(key); strong.appendChild(document.createTextNode(fmt(p.a) + " average"));
+      line2.textContent = dayLabel(p.d) + ", " + p.v + " sale" + (p.v === 1 ? "" : "s");
+      tip.appendChild(strong); tip.appendChild(line2);
+      tip.hidden = false;
+      var tw = tip.offsetWidth, left = x + 12 + tw > W ? x - 12 - tw : x + 12;
+      tip.style.left = Math.max(0, left) + "px";
+    }
+    function nearest(clientX) {
+      var r = svg.getBoundingClientRect(), x = (clientX - r.left) * W / r.width, best = 0;
+      pts.forEach(function (q, i) { if (Math.abs(q[0] - x) < Math.abs(pts[best][0] - x)) best = i; });
+      return best;
+    }
+    svg.querySelector(".hit").addEventListener("pointermove", function (ev) { pointAt(nearest(ev.clientX)); });
+    svg.querySelector(".hit").addEventListener("pointerleave", function () { xh.setAttribute("visibility", "hidden"); tip.hidden = true; cur = -1; });
+    el.onkeydown = function (ev) {
+      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+      ev.preventDefault();
+      pointAt(Math.max(0, Math.min(h.length - 1, cur < 0 ? h.length - 1 : cur + (ev.key === "ArrowRight" ? 1 : -1))));
+    };
+    el.onblur = function () { xh.setAttribute("visibility", "hidden"); tip.hidden = true; cur = -1; };
+  }
+  var trendResize = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(trendResize);
+    trendResize = setTimeout(function () { if (trendShown) showTrend(trendShown); }, 150);
+  });
+
+  function renderSell() {
+    var D = window.PRICE_DATA;
+    var lead = document.getElementById("sell-lead");
+    if (!D || !D.items) {
+      lead.innerHTML = "No price data yet. Reload the page in a minute.";
+      return;
+    }
+    var items = D.items.filter(function (i) { return i.median != null; }).map(function (i) {
+      return { name: i.name, median: i.median, reports: i.reports, npc: i.npc, sub: i.sub || "", type: i.type || "",
+        cat: sellCat(i), x: i.npc >= 2 ? i.median / i.npc : null, keep: KERNING_DONATIONS.indexOf(i.name) >= 0 };
+    });
+    var when = new Date(D.fetchedAt);
+    var whenTxt = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    lead.innerHTML = "<strong>" + items.length + " items</strong> with " + (isMesoWatch(D) ? "real sale prices: the typical price each one actually sold for" :
+      "player-reported prices, each the typical price of the last " + (D.windowDays || 14) + " days") +
+      ". Sell anything that beats the NPC by a lot; the <span class=\"badge\">Kerning donation</span> ones you keep until you have 30.";
+
+    // highlights
+    function li(i, extra) { return "<li><strong>" + esc(i.name) + "</strong> " + fmt(i.median) + (extra ? " <span>" + extra + "</span>" : "") + "</li>"; }
+    var drops = items.filter(function (i) { return i.cat === "Etc" && i.reports >= 3 && i.x >= 15; })
+      .sort(function (a, b) { return b.x - a.x; }).slice(0, 10);
+    var scrolls = items.filter(function (i) { return i.cat === "Scrolls" && i.reports >= 3; })
+      .sort(function (a, b) { return b.median - a.median; }).slice(0, 8);
+    var food = items.filter(function (i) { return i.cat === "Use" && i.reports >= 3 && i.x >= 3; })
+      .sort(function (a, b) { return b.median - a.median; }).slice(0, 8);
+    document.getElementById("sell-highlights").innerHTML =
+      "<div class=\"card hl-card rec\"><h4>Cheap drops that sell high</h4><p>15 times the NPC price or more, at least 3 reports.</p><ol>" +
+        drops.map(function (i) { return li(i, Math.round(i.x) + "x NPC" + (i.keep ? ", Kerning donation" : "")); }).join("") + "</ol></div>" +
+      "<div class=\"card hl-card\"><h4>Scrolls: never sell to the NPC</h4><p>The NPC pays 1 mesos for a scroll. Players pay this.</p><ol>" +
+        scrolls.map(function (i) { return li(i); }).join("") + "</ol></div>" +
+      "<div class=\"card hl-card\"><h4>Food and other Use items</h4><p>At least 3 times the NPC price.</p><ol>" +
+        food.map(function (i) { return li(i, Math.round(i.x) + "x NPC"); }).join("") + "</ol></div>";
+
+    // table controls
+    var state = { q: "", cat: store.get("sell.cat", "all"), sort: store.get("sell.sort", "price") };
+    var catsEl = document.getElementById("sell-cats");
+    catsEl.innerHTML = SELL_CATS.map(function (c) { return "<button data-cat=\"" + c[0] + "\" aria-pressed=\"" + (state.cat === c[0]) + "\">" + c[1] + "</button>"; }).join("");
+    var sortEl = document.getElementById("sell-sort");
+    sortEl.value = state.sort;
+    var qEl = document.getElementById("sell-q");
+    var tbody = document.querySelector("#sell-table tbody");
+    function draw() {
+      var q = state.q.trim().toLowerCase();
+      var rows = items.filter(function (i) {
+        return (state.cat === "all" || i.cat === state.cat) && (!q || i.name.toLowerCase().indexOf(q) >= 0);
+      });
+      rows.sort(function (a, b) {
+        // Items with 1-2 reports (often joke or stale listings) go after the well-reported ones.
+        if (state.sort !== "name" && (a.reports < 3) !== (b.reports < 3)) return a.reports < 3 ? 1 : -1;
+        if (state.sort === "x") return (b.x || 0) - (a.x || 0);
+        if (state.sort === "reports") return b.reports - a.reports;
+        if (state.sort === "name") return a.name.localeCompare(b.name);
+        return b.median - a.median;
+      });
+      tbody.innerHTML = rows.length ? rows.map(function (i) {
+        var thin = i.reports < 3;
+        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(i.name) + "</strong>" + (i.keep ? "<span class=\"badge\">Kerning donation</span>" : "") + "</td>" +
+          "<td>" + esc(i.sub || i.type) + "</td>" +
+          "<td class=\"num\"><strong>" + fmt(i.median) + "</strong></td>" + trendCell(i.name) +
+          "<td class=\"num\">" + (i.npc == null ? "" : fmt(i.npc)) + "</td>" +
+          "<td class=\"num\">" + (i.x == null ? "" : Math.round(i.x) + "x") + "</td>" +
+          "<td class=\"num\">" + i.reports + (thin ? " (thin)" : "") + "</td></tr>";
+      }).join("") : "<tr><td colspan=\"7\" class=\"muted\">No priced item matches. Players may not have reported it yet.</td></tr>";
+    }
+    catsEl.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.cat = b.getAttribute("data-cat"); store.set("sell.cat", state.cat);
+        catsEl.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        draw();
+      });
+    });
+    sortEl.addEventListener("change", function () { state.sort = sortEl.value; store.set("sell.sort", state.sort); draw(); });
+    qEl.addEventListener("input", function () { state.q = qEl.value; draw(); });
+    draw();
+
+    document.getElementById("sell-source").innerHTML = isMesoWatch(D) ?
+      esc(D.sourceName || "MesoWatch real sales") + ", read " + esc(whenTxt) + ". Each price is the typical price of sold shop rows, so these are real sales, not asking prices; " +
+        "\"Reports\" is how many sales were seen. Items with under 3 sales are greyed out and listed last. NPC prices from NiaMeowDB item data. " +
+        "Prices refresh automatically every 3 hours." :
+      "Live data from the <a href=\"" + esc(D.source) + "\" target=\"_blank\" rel=\"noopener\">NiaMeowDB Free Market</a>, fetched " +
+        esc(whenTxt) + ". Prices are NiaMeowDB's typical price from player reports, sales and asking prices mixed; items with under 3 reports are greyed out and listed last. NPC prices from NiaMeowDB item data. " +
+        "Prices refresh automatically every 3 hours.";
+  }
+  // prices.js comes from MesoWatch real sales (import-mesowatch.mjs) or NiaMeowDB reports (update-prices.mjs).
+  function isMesoWatch(D) { return !!D && (D.realSales || D.source === "MesoWatch"); }
+
+  // ---------- NX items for mesos (Cash Shop NX costs + sold reports, from prices.js) ----------
+  // Nexon's published odds in percent: general-post/45538 (Founder's) and general-post/45659 (Aurora).
+  var CRATES = {
+    founder: { label: "Founder's crate", url: "https://www.nexon.com/maplestory/general-post/45538", rates: {
+      "Angel Halo": 1, "Toga": 1, "Baby Angel Wings": 1, "Angel Wand": 1, "Cherub's Bow": 1, "Blue Cap": 2,
+      "Orange Baseball Jacket": 2.5, "Rainbow Knit": 2.5, "Ripped Jeans": 2.5, "Orange Toy Hammer": 1, "Blue Bucket Hat": 2.5,
+      "Tourist T": 2.5, "White Jeans": 2.5, "Black Sunglasses": 1, "Cat Hat": 2.5, "Cat Suit": 2.5, "Gold Kitty Slippers": 2.5,
+      "Kitty Chat Ring": 2.5, "Meshcap": 2.5, "Pink Allstar": 2.5, "Jean Shorts": 2.5, "Beret": 2.5, "Red Sailor Shirt": 2.5,
+      "Red Sailor Skirt": 2.5, "Black Enamel Shoes": 2.5, "Patissier Hat": 3, "Patissier Uniform": 3, "Yellow Spatula": 1,
+      "Bunny Ears": 1, "Bunny Earmuffs": 1, "Orange Mushroom Balloon": 1, "Blue Watch": 2.5, "Red Trainer Jacket": 2.5,
+      "Red Trainer Pants": 2.5, "Yellow Rainbow Sneaks": 2.5, "Dollish Pink": 1, "Purple Dorothy Dress": 2.5, "Sailor Hat": 2,
+      "Sailor Outfit": 2, "White Ribboned Sailor Dress": 2, "Slime T-Shirt": 1, "Slime Slippers": 1, "Slime Earrings": 1,
+      "Reggae Hat": 2.5, "Orange Hooded Shirt": 2.5, "White Hooded Vest": 2.5, "Butterfly Skirt": 2.5, "Beetle Long Sleeve": 2.5,
+      "Lined Hip-Hop Pants": 2.5, "White Label Ring": 1 } },
+    aurora: { label: "Aurora crate (20 stamps)", url: "https://www.nexon.com/maplestory/general-post/45659", rates: {
+      "White Choco Bunny": 1.5, "Splash Choco Boy": 2.5, "Splash Choco Girl": 2.5, "Cacao Bear Shoes": 2.5, "Chocolate Ribbon": 2.5,
+      "Soft Chocolate Fondue Scepter": 1.5, "Choco Candy Cookie": 2, "Black Cat Beanie": 5, "Sky Blue Cat Beanie": 5,
+      "Orange Cat Beanie": 5, "Heart Sunglasses": 5, "Red Check Rider": 5, "Violet Dot Jeans": 5, "Pink Bunny Sweater": 5,
+      "Hearts Tights": 5, "Pink Elephant Slippers": 5, "Loose Fit Sweater": 4.5, "Stocking Shorts": 4.5, "Detective Glass": 2,
+      "Blank Eye Patch": 2, "Heartbreaker Lips": 2, "Starlight Heart Scepter": 2, "Ink-and-Wash Thought Bubble Ring": 5.75,
+      "Ink-and-Wash Painting Name Tag Ring": 5.75, "Chocolate Label Ring": 5.75, "Chocolate Chat Ring": 5.75 } }
+  };
+  var CRATE_NAME = "Founder's Mystery Fashion Crate";
+  // Latest sale price with enough sales behind it: last day (5+ sales), else last 3 days, else 14 days (3+ sales).
+  function nxValue(i) {
+    if (i.d1[1] >= 5) return { v: i.d1[0], n: i.d1[1], w: "last day" };
+    if (i.d3[1] >= 3) return { v: i.d3[0], n: i.d3[1], w: "3 days" };
+    var w = (window.PRICE_DATA && window.PRICE_DATA.windowLabel) || "14 days";
+    if (i.d14[1] >= 3) return { v: i.d14[0], n: i.d14[1], w: w };
+    return { v: null, n: i.d14[1], w: w };
+  }
+  function nxNote(i) {
+    if (i.name === "Selective 5-slot Coupon") return "+5 slots on the inventory tab you pick. The most traded NX item";
+    if (i.name === CRATE_NAME) return "The box expires 7 days after you buy it, so sell it inside the week";
+    if (i.days === 10) return "Lasts 10 days, so few players want it";
+    if (/Coupon$/.test(i.name) && i.days) return "Expires " + i.days + " days after you buy it";
+    return "";
+  }
+  // Expected meso value of one pull. Items with no sales yet count at the crate's cheapest priced item.
+  function crateEv(rates, byName, loose) {
+    var rows = Object.keys(rates).map(function (n) {
+      var i = byName[n], v = i ? i.val.v : null;
+      if (v == null && loose && i && i.d14[1] >= 1) v = i.d14[0];
+      return { name: n, rate: rates[n], v: v };
+    });
+    var priced = rows.filter(function (r) { return r.v != null; });
+    var floor = Math.min.apply(null, priced.map(function (r) { return r.v; }));
+    var ev = 0, under = 0;
+    rows.forEach(function (r) { var v = r.v != null ? r.v : floor; ev += r.rate / 100 * v; if (v < 5000) under += r.rate; });
+    return { ev: ev, rows: rows, floor: floor, unpriced: rows.length - priced.length, under: under };
+  }
+  function renderNx() {
+    var D = window.PRICE_DATA, lead = document.getElementById("nx-lead");
+    if (!D || !D.nx) {
+      lead.innerHTML = "No NX data yet. Reload the page in a minute.";
+      return;
+    }
+    var byName = {};
+    D.nx.forEach(function (i) { i.val = nxValue(i); byName[i.name] = i; });
+
+    // Cash Shop items: what 1 dollar of NX turns into
+    var shop = D.nx.filter(function (i) { return i.nx; }).map(function (i) {
+      return { name: i.name, nx: i.nx, val: i.val, ask: i.ask, note: nxNote(i), d14: i.d14,
+        per: i.val.v ? i.val.v / (i.nx / 1000) : null };
+    });
+    var crate = byName[CRATE_NAME];
+    if (crate && crate.nx) {
+      var each = 35000 / 11;
+      shop.push({ name: CRATE_NAME + ", 11-pack", nx: each, each: true, val: crate.val, ask: crate.ask, d14: crate.d14,
+        note: "35,000 NX for 11, so each box costs less", per: crate.val.v ? crate.val.v / (each / 1000) : null });
+    }
+    shop.sort(function (a, b) {
+      if ((a.per == null) !== (b.per == null)) return a.per == null ? 1 : -1;
+      return a.per == null ? (b.ask[0] || 0) - (a.ask[0] || 0) : b.per - a.per;
+    });
+    document.querySelector("#nx-shop tbody").innerHTML = shop.map(function (r) {
+      var thin = r.per == null;
+      return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(r.name) + "</strong></td>" +
+        "<td class=\"num\">" + fmt(Math.round(r.nx)) + (r.each ? " each" : "") + "</td>" +
+        "<td class=\"num\">" + (thin ? (r.ask[0] ? "asking " + fmt(r.ask[0]) : r.d14[1] ? "sold " + (r.d14[1] === 1 ? "once " : "") + "at " + fmt(r.d14[0]) : "") : "<strong>" + fmt(r.val.v) + "</strong>") + "</td>" +
+        trendCell(r.each ? CRATE_NAME : r.name) +
+        "<td class=\"num\">" + (thin ? "" : "<strong>" + fmt(Math.round(r.per)) + "</strong>") + "</td>" +
+        "<td class=\"num\">" + r.val.n + " <span class=\"small muted\">" + r.val.w + "</span></td>" +
+        "<td>" + esc(r.note) + "</td></tr>";
+    }).join("");
+
+    var best = shop.filter(function (r) { return r.per != null && r.val.n >= 5; })[0] || shop[0];
+    var next = shop.filter(function (r) { return r.per != null && r !== best; })[0];
+    var jump = best && best.d14[0] && best.val.v > best.d14[0] * 1.4;
+    lead.innerHTML = best && best.per ?
+      "<strong>Best NX item to sell right now: " + esc(best.name) + ".</strong> It costs " + fmt(Math.round(best.nx)) + " NX and sold for about <strong>" +
+        fmt(best.val.v) + " mesos</strong> (" + best.val.n + " sales, " + best.val.w + "), which is <strong>" + fmt(Math.round(best.per)) + " mesos per $1</strong>." +
+        (jump ? " Its 14-day price was " + fmt(best.d14[0]) + ", so it jumped recently: sell soon, before it settles." : "") +
+        (next ? " Next best: " + esc(next.name) + " at " + fmt(Math.round(next.per)) + " per $1." : "") +
+        " 1,000 NX is $1. Greyed rows have too few sales to trust." :
+      "Not enough sales yet to rank the NX items.";
+
+    // Cards: crate sell-or-open, Aurora stamps, buying a look
+    var f = crateEv(CRATES.founder.rates, byName, false);
+    var a = crateEv(CRATES.aurora.rates, byName, true);
+    var stamp = a.ev / 20;
+    var unopened = crate ? crate.val.v : null;
+    var top = f.rows.filter(function (r) { return r.v != null; }).sort(function (x, y) { return y.v - x.v; }).slice(0, 5);
+    document.getElementById("nx-cards").innerHTML =
+      "<div class=\"card hl-card rec\"><h4>Founder's crate: sell it or open it?</h4><p>Nexon's odds times what each item sells for.</p><ol>" +
+        "<li>Unopened it sells for <strong>" + (unopened ? fmt(unopened) : "?") + "</strong></li>" +
+        "<li>Opened, one pull is worth <strong>" + fmt(Math.round(f.ev / 100) * 100) + "</strong> on average <span>" +
+          (f.unpriced ? f.unpriced + " items with no sales counted at " + fmt(f.floor) : "") + "</span></li>" +
+        "<li>" + Math.round(f.under) + "% of pulls sell for under 5,000</li></ol>" +
+        "<p style=\"margin:8px 0 0\"><strong>" + (unopened && unopened > f.ev ? "Sell it unopened" : "Opening pays more right now") + "</strong>, unless you want the look.</p></div>" +
+      "<div class=\"card hl-card\"><h4>Aurora Stamps</h4><p>Right-click an unwanted crate item before equipping it: 1 stamp. 20 stamps open an Aurora crate.</p><ol>" +
+        "<li>Aurora pull worth about <strong>" + fmt(Math.round(a.ev / 1000) * 1000) + "</strong> on average <span>mostly the two Ink-and-Wash rings, from very few sales</span></li>" +
+        "<li>That makes a stamp worth about <strong>" + fmt(Math.round(stamp / 100) * 100) + "</strong></li>" +
+        "<li>So a crate item that sells for less is worth more as a stamp, if you will reach 20</li></ol>" +
+        "<p style=\"margin:8px 0 0\">Stamps only move between your own characters and expire 13 January 2027.</p></div>" +
+      (top.length ? "<div class=\"card hl-card\"><h4>Want one look? Buy it, don't roll</h4><p>The best pulls, their chance per crate, and how many crates that takes on average.</p><ol>" +
+        top.map(function (r) { return "<li><strong>" + esc(r.name) + "</strong> " + fmt(r.v) + " <span>" + r.rate + "%, about " + fmt(Math.round(100 / r.rate)) + " crates</span></li>"; }).join("") +
+        "</ol><p style=\"margin:8px 0 0\">" + fmt(Math.round(100 / top[0].rate)) + " crates in 11-packs is about " + fmt(Math.round(100 / top[0].rate * 35000 / 11 / 1000) * 1000) + " NX ($" + fmt(Math.round(100 / top[0].rate * 35 / 11)) + "). Buying from a player costs the price shown.</p></div>" : "");
+
+    // Crate tables
+    var pick = store.get("nx.crate", "founder");
+    if (!CRATES[pick]) pick = "founder";
+    var pickEl = document.getElementById("nx-crate-pick");
+    pickEl.innerHTML = Object.keys(CRATES).map(function (k) { return "<button data-k=\"" + k + "\" aria-pressed=\"" + (pick === k) + "\">" + CRATES[k].label + "</button>"; }).join("");
+    function drawCrate() {
+      var C = CRATES[pick];
+      var rows = Object.keys(C.rates).map(function (n) { var i = byName[n]; return { name: n, rate: C.rates[n], i: i, v: i ? i.val.v : null }; });
+      rows.sort(function (x, y) {
+        if ((x.v == null) !== (y.v == null)) return x.v == null ? 1 : -1;
+        return x.v == null ? ((y.i ? y.i.ask[0] : 0) || 0) - ((x.i ? x.i.ask[0] : 0) || 0) : y.v - x.v;
+      });
+      document.querySelector("#nx-crate tbody").innerHTML = rows.map(function (r) {
+        var i = r.i, thin = r.v == null;
+        var sold = !i ? "no reports yet" : thin ? (i.d14[1] ? fmt(i.d14[0]) + " <span class=\"small\">(" + i.d14[1] + " sale" + (i.d14[1] > 1 ? "s" : "") + ")</span>" : "no sales yet") : "<strong>" + fmt(r.v) + "</strong>";
+        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(r.name) + "</strong></td><td class=\"num\">" + r.rate + "%</td>" +
+          "<td class=\"num\">" + sold + "</td><td class=\"num\">" + (i && i.ask[0] ? fmt(i.ask[0]) : "") + "</td>" +
+          "<td class=\"num\">" + (i && !thin ? i.val.n + " <span class=\"small muted\">" + i.val.w + "</span>" : "") + "</td></tr>";
+      }).join("");
+    }
+    pickEl.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        pick = b.getAttribute("data-k"); store.set("nx.crate", pick);
+        pickEl.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        drawCrate();
+      });
+    });
+    drawCrate();
+
+    document.getElementById("nx-source").innerHTML = "NX costs from the <a href=\"https://osmsdataexplorer.com/#cashshop\" target=\"_blank\" rel=\"noopener\">OSMS Data Explorer</a> Cash Shop data. " +
+      (isMesoWatch(D) ? "Sale prices are " + esc(D.sourceName || "MesoWatch real sales") + ": the typical price of every sale seen. " :
+        "Sale prices are the median of reported <em>sales</em> on <a href=\"" + esc(D.source) + "\" target=\"_blank\" rel=\"noopener\">NiaMeowDB</a>: the last day when it has 5 or more sales, " +
+        "else the last 3 days, else 14 days. \"Asking\" is the median listing price, usually higher. ") + "Crate odds from Nexon: <a href=\"" + CRATES.founder.url +
+      "\" target=\"_blank\" rel=\"noopener\">Founder's</a>, <a href=\"" + CRATES.aurora.url + "\" target=\"_blank\" rel=\"noopener\">Aurora</a>. Refreshed together with the table above.";
+  }
+
+  // ---------- Buying smarter (price check + gear for your level, from prices.js and gamedata.js) ----------
+  var BUY_CLASSES = {
+    bandit: { label: "Bandit", job: "Thief", weapons: ["Dagger"], shield: true, scroll: /^Dagger Attack Scroll/ },
+    assassin: { label: "Assassin", job: "Thief", weapons: ["Claw"], shield: false, scroll: /^Claw Attack Scroll/ },
+    il: { label: "I/L Wizard", job: "Mage", weapons: ["Wand", "Staff"], shield: true, scroll: /^(Wand|Staff) Magic Attack Scroll/ }
+  };
+  var SLOT_ORDER = ["Weapon", "Shield", "Hat", "Top", "Bottom", "Overall", "Shoes", "Glove", "Cape", "Earring", "Stars", "Scroll"];
+  function niceRound(n) { var s = n >= 10000 ? 500 : n >= 1000 ? 100 : 10; return Math.max(s, Math.round(n / s) * s); }
+  function equipStats(e) {
+    var p = [];
+    if (e.atk) p.push(e.atk + " attack");
+    if (e.matk) p.push(e.matk + " magic attack");
+    if (e.def) p.push(e.def + " defense");
+    ["str", "dex", "int", "luk"].forEach(function (k) { if (e[k]) p.push("+" + e[k] + " " + k.toUpperCase()); });
+    return p.join(", ");
+  }
+  function renderBuy() {
+    var D = window.PRICE_DATA, G = window.GAME_DATA;
+    var verdictEl = document.getElementById("buy-verdict");
+    if (!D || !D.items) { verdictEl.innerHTML = "<span class=\"muted\">No price data. See the refresh note at the top of this tab.</span>"; return; }
+    var items = D.items.filter(function (i) { return i.median != null; });
+    var byName = {};
+    items.forEach(function (i) { byName[i.name.toLowerCase()] = i; });
+    document.getElementById("buy-items").innerHTML = items.map(function (i) { return "<option value=\"" + esc(i.name) + "\">"; }).join("");
+    var when = new Date(D.fetchedAt);
+    var whenTxt = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+    // Price check
+    var itemEl = document.getElementById("buy-item"), priceEl = document.getElementById("buy-price");
+    function check() {
+      var it = byName[itemEl.value.trim().toLowerCase()];
+      var price = parseInt(priceEl.value, 10);
+      if (!it && trendShown) showTrend("");
+      if (!itemEl.value.trim()) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<span class=\"muted\">Type an item and the price you see.</span>"; return; }
+      if (!it) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<span class=\"muted\">No player prices for that item yet. Pick a name from the list as you type.</span>"; return; }
+      if (trendShown !== it.name) showTrend(it.name);
+      var tr = trendOf(it.name);
+      var facts = "Players usually pay <strong>" + fmt(it.median) + "</strong>" + (it.npc != null ? ", the NPC pays " + fmt(it.npc) : "") +
+        ". Based on " + it.reports + " report" + (it.reports === 1 ? "" : "s") + (it.reports < 3 ? ", so treat it as a rough guide" : "") + "." +
+        (tr && Math.abs(tr.pct) >= 3 ? " The price is <strong>" + (tr.pct > 0 ? "rising" : "falling") + "</strong>: " + trendTxt(tr) +
+          " this week, recent sales about " + fmt(niceRound(tr.to)) + "." : tr ? " The price has been steady this week." : "");
+      if (!(price >= 0)) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<strong>" + esc(it.name) + "</strong>: " + facts; return; }
+      var r = price / it.median, cls, head;
+      if (it.npc && price < it.npc) { cls = "good"; head = "Buy it. That is less than an NPC pays for it (" + fmt(it.npc) + ")."; }
+      else if (r <= 0.75) { cls = "good"; head = "Good deal: " + Math.round((1 - r) * 100) + "% under the usual price."; }
+      else if (r <= 1.0) { cls = "fair"; head = "Fair price."; }
+      else if (r <= 1.25) { cls = "high"; head = "A bit high. Offer around " + fmt(niceRound(it.median * 0.9)) + "."; }
+      else { cls = "bad"; head = "Overpriced: " + Math.round((r - 1) * 100) + "% over the usual price."; }
+      verdictEl.className = "card buy-verdict " + cls;
+      verdictEl.innerHTML = "<strong class=\"v-head\">" + esc(head) + "</strong> " + facts;
+    }
+    itemEl.addEventListener("input", check);
+    priceEl.addEventListener("input", check);
+
+    // Gear for the chosen character, around the level set on its class tab
+    var pick = store.get("buy.class", "bandit");
+    if (!BUY_CLASSES[pick]) pick = "bandit";
+    var segEl = document.getElementById("buy-class");
+    segEl.innerHTML = Object.keys(BUY_CLASSES).map(function (k) { return "<button data-k=\"" + k + "\" aria-pressed=\"" + (pick === k) + "\">" + BUY_CLASSES[k].label + "</button>"; }).join("");
+    function drawGear() {
+      var C = BUY_CLASSES[pick];
+      var L = Math.min(100, Math.max(1, parseInt(store.get("level." + pick, 10), 10) || 10));
+      var lo = Math.max(0, L - 5), hi = L + 3;
+      document.getElementById("buy-level").textContent = "Level " + L + " (from the " + C.label + " tab). Showing level " + lo + " to " + hi + " gear.";
+      var rows = [];
+      items.forEach(function (i) {
+        if (i.type === "Equip" && G && G.equips && G.equips[i.name]) {
+          var e = G.equips[i.name];
+          if (e.lv < lo || e.lv > hi) return;
+          if (e.job && e.job.indexOf(C.job) < 0) return;
+          if (e.slot === "Weapon" && C.weapons.indexOf(e.wt) < 0) return;
+          if (e.slot === "Shield" && !C.shield) return;
+          rows.push({ i: i, slot: e.slot === "Weapon" ? e.wt : e.slot, order: e.slot, lv: e.lv, stats: equipStats(e) });
+        } else if (pick === "assassin" && i.sub === "Throwing Star") {
+          rows.push({ i: i, slot: "Stars", order: "Stars", lv: i.lv || 10, stats: "" });
+        } else if (i.type === "Use" && C.scroll.test(i.name)) {
+          rows.push({ i: i, slot: "Scroll", order: "Scroll", lv: 0, stats: "" });
+        }
+      });
+      rows.sort(function (a, b) {
+        var oa = SLOT_ORDER.indexOf(a.order), ob = SLOT_ORDER.indexOf(b.order);
+        return (oa < 0 ? 99 : oa) - (ob < 0 ? 99 : ob) || b.lv - a.lv || a.i.name.localeCompare(b.i.name);
+      });
+      document.querySelector("#buy-gear tbody").innerHTML = rows.length ? rows.map(function (r) {
+        var thin = r.i.reports < 3;
+        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(r.i.name) + "</strong></td><td>" + esc(r.slot) + "</td>" +
+          "<td class=\"num\">" + (r.lv || "") + "</td><td class=\"small\">" + esc(r.stats) + "</td>" +
+          "<td class=\"num\">" + fmt(r.i.median) + "</td>" + trendCell(r.i.name) + "<td class=\"num\"><strong>" + fmt(niceRound(r.i.median * 0.8)) + "</strong></td>" +
+          "<td class=\"num\">" + r.i.reports + "</td></tr>";
+      }).join("") : "<tr><td colspan=\"8\" class=\"muted\">No priced gear in this level range yet.</td></tr>";
+    }
+    segEl.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        pick = b.getAttribute("data-k"); store.set("buy.class", pick);
+        segEl.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        drawGear();
+      });
+    });
+    drawGear();
+    // Level changes on a class tab should show here without a reload.
+    document.querySelectorAll("nav.tabs button[data-tab=\"market\"]").forEach(function (b) { b.addEventListener("click", drawGear); });
+
+    document.getElementById("buy-source").innerHTML = "Prices from " + (isMesoWatch(D) ? esc(D.sourceName || "MesoWatch real sales") : "NiaMeowDB") + ", read " + esc(whenTxt) +
+      ". \"Good buy at\" is 80% of the typical price. \"Last 7 days\" is the daily average sale price: the arrow compares the newest 2 days with sales to the oldest 2, and steady means within 3%" +
+      (PH ? " (history to " + esc(dayLabel(PH.dates[PH.dates.length - 1])) + ")" : "") + ". Item levels, jobs and stats from the OSMS Data Explorer datamine. Greyed rows have under 3 " +
+      (isMesoWatch(D) ? "sales" : "reports") + ". Some gear is male- or female-only, so check the tooltip before you pay.";
+  }
+
+  // ---------- Farming: drop value per map and per kill ----------
+  // Drop chances and spawns are static (farmdata.js); prices come live from prices.js, so values follow the market.
+  var BOSS_FROM = 700000;              // boss ids; they respawn on timers, so they do not belong in a per-map ranking
+  function farmChance(r) {
+    if (r >= 0.01) return Math.round(r * 100) + "%";
+    var n = 1 / r;
+    var s = n >= 10000 ? 1000 : n >= 1000 ? 100 : 10;
+    return "1 in " + fmt(Math.round(n / s) * s);
+  }
+  function farmMesos(v) { return v >= 10 ? fmt(Math.round(v)) : v.toFixed(1); }
+  // How a character's attacks meet a monster: physical classes hit weapon defense, the I/L hits magic
+  // defense and, once Cold Beam (31) and Thunder Bolt (41) arrive in the build, the monster's elements.
+  // "hard" marks monsters the character should not farm: defense of 300+ or, for the I/L from 41, resisting both elements.
+  var FARM_MAGIC = { il: true };
+  function farmMatchup(m, cls, L) {
+    var notes = [], hard = false;
+    if (!FARM_MAGIC[cls]) {
+      if (m.pdef >= 300) { notes.push("very high weapon defense (" + m.pdef + ")"); hard = true; }
+      return { notes: notes, hard: hard };
+    }
+    if (m.mdef >= 300) { notes.push("very high magic defense (" + m.mdef + ")"); hard = true; }
+    if (L >= 31) {
+      var ice = m.el.Ice, bolt = L >= 41, light = bolt ? m.el.Lightning : null;
+      var resIce = ice === "Strong" || ice === "Immune", resLight = light === "Strong" || light === "Immune";
+      if (ice === "Weak") notes.push("weak to Ice");
+      if (light === "Weak") notes.push("weak to Lightning");
+      if (resIce && resLight) { notes.push("resists Ice and Lightning"); hard = true; }
+      else if (resIce) notes.push(bolt ? "resists Ice: use Thunder Bolt" : "resists Ice");
+      else if (resLight) notes.push("resists Lightning: use Cold Beam");
+    }
+    return { notes: notes, hard: hard };
+  }
+  function renderFarm() {
+    var F = window.FARM_DATA, D = window.PRICE_DATA;
+    var mapsBody = document.querySelector("#farm-maps tbody"), mobsBody = document.querySelector("#farm-mobs tbody");
+    var sumEl = document.getElementById("farm-summary");
+    if (!F || !F.mobs || !D || !D.items) {
+      mapsBody.innerHTML = mobsBody.innerHTML = "<tr><td colspan=\"7\" class=\"muted\">Drop or price data is missing. Run build-farmdata.mjs and refresh prices.</td></tr>";
+      sumEl.innerHTML = "";
+      return;
+    }
+    var byName = {};
+    D.items.forEach(function (i) { byName[i.name] = i; });
+    // A drop counts at its typical player price when it has sold at least 5 times, otherwise at what an NPC pays.
+    function worth(d) {
+      var p = byName[d.n];
+      if (p && p.median > 0 && p.reports >= 5) return { v: p.median, npc: false };
+      return { v: d.npc || 0, npc: true };
+    }
+    var mobs = F.mobs.filter(function (m) { return m.id < BOSS_FROM; }).map(function (m) {
+      var parts = m.drops.map(function (d) { var w = worth(d); return { n: d.n, r: d.r, v: w.v, npc: w.npc, ev: d.r * w.v }; })
+        .sort(function (a, b) { return b.ev - a.ev; });
+      var ev = parts.reduce(function (s, x) { return s + x.ev; }, 0);
+      var maps = m.maps.filter(function (p) { return p.n; });
+      var best = maps.slice().sort(function (a, b) { return b.c - a.c; })[0];
+      return { m: m, parts: parts, ev: ev, maps: maps, best: best };
+    });
+    function dropTxt(x) { return esc(x.n) + " <span class=\"muted\">(" + farmChance(x.r) + ", " + fmt(x.v) + (x.npc ? " NPC" : "") + ")</span>"; }
+    function levelOf(cls) { return Math.min(100, Math.max(1, parseInt(store.get("level." + cls, 10), 10) || 10)); }
+
+    // Every map's drop value for one character: maps with a monster more than 3 levels above it, or where most
+    // of the value sits on monsters it should not farm, are left out.
+    function mapsFor(cls, L) {
+      var hi = L + 3, byMap = {};
+      mobs.forEach(function (x) {
+        var mu = farmMatchup(x.m, cls, L);
+        x.maps.forEach(function (p) {
+          var e = byMap[p.id] || (byMap[p.id] = { n: p.n, st: p.st, val: 0, hardVal: 0, maxLv: 0, who: [], items: {} });
+          var v = p.c * x.ev;
+          e.val += v; if (mu.hard) e.hardVal += v;
+          e.maxLv = Math.max(e.maxLv, x.m.lv);
+          e.who.push({ n: x.m.n, lv: x.m.lv, c: p.c, notes: mu.notes });
+          x.parts.forEach(function (d) { if (d.ev > 0) e.items[d.n] = (e.items[d.n] || 0) + p.c * d.ev; });
+        });
+      });
+      return Object.keys(byMap).map(function (k) { return byMap[k]; })
+        .filter(function (e) { return e.maxLv <= hi && e.val > 0 && e.hardVal <= e.val / 2; })
+        .sort(function (a, b) { return b.val - a.val; });
+    }
+    function mapNotes(e) {
+      return e.who.filter(function (w) { return w.notes.length; }).sort(function (a, b) { return b.c - a.c; }).slice(0, 3)
+        .map(function (w) { return esc(w.n) + ": " + esc(w.notes.join(", ")); }).join("<br>");
+    }
+
+    // Top 3 for every character at once, each at the level set on its own tab.
+    function drawSummary() {
+      sumEl.innerHTML = Object.keys(BUY_CLASSES).map(function (cls) {
+        var L = levelOf(cls), top = mapsFor(cls, L).slice(0, 3);
+        return "<div class=\"card\"><strong>" + BUY_CLASSES[cls].label + "</strong> <span class=\"small muted\">level " + L + "</span>" +
+          "<ol class=\"tight\">" + (top.length ? top.map(function (e) {
+            var main = e.who.slice().sort(function (a, b) { return b.c - a.c; })[0];
+            return "<li><strong>" + esc(e.n) + "</strong> <span class=\"muted\">" + fmt(Math.round(e.val)) + "</span><br><span class=\"small muted\">" +
+              esc(main.n) + " x" + main.c + (e.st ? ", " + esc(e.st) : "") + "</span></li>";
+          }).join("") : "<li class=\"muted\">No maps for this level.</li>") + "</ol></div>";
+      }).join("");
+    }
+    drawSummary();
+
+    var pick = store.get("farm.class", store.get("buy.class", "bandit"));
+    if (!BUY_CLASSES[pick]) pick = "bandit";
+    var segEl = document.getElementById("farm-class");
+    segEl.innerHTML = Object.keys(BUY_CLASSES).map(function (k) { return "<button data-k=\"" + k + "\" aria-pressed=\"" + (pick === k) + "\">" + BUY_CLASSES[k].label + "</button>"; }).join("");
+
+    function draw() {
+      var C = BUY_CLASSES[pick], L = levelOf(pick), hi = L + 3, lo = Math.max(1, L - 15);
+      document.getElementById("farm-level").textContent = "Level " + L + " (from the " + C.label + " tab). Maps where no monster is above level " + hi + ".";
+
+      var maps = mapsFor(pick, L).slice(0, 12);
+      mapsBody.innerHTML = maps.length ? maps.map(function (e, i) {
+        var who = e.who.slice().sort(function (a, b) { return b.c - a.c; }).map(function (w) { return esc(w.n) + " x" + w.c + " <span class=\"muted\">(Lv " + w.lv + ")</span>"; }).join(", ");
+        var top = Object.keys(e.items).map(function (n) { return { n: n, v: e.items[n] }; }).sort(function (a, b) { return b.v - a.v; }).slice(0, 3)
+          .map(function (t) { return esc(t.n) + " <span class=\"muted\">" + Math.round(t.v / e.val * 100) + "%</span>"; }).join(", ");
+        return "<tr" + (i < 3 ? " class=\"hl\"" : "") + "><td><strong>" + esc(e.n) + "</strong>" + (e.st ? "<br><span class=\"small muted\">" + esc(e.st) + "</span>" : "") + "</td>" +
+          "<td class=\"small\">" + who + "</td><td class=\"num\"><strong>" + fmt(Math.round(e.val)) + "</strong></td><td class=\"small\">" + top + "</td>" +
+          "<td class=\"small\">" + mapNotes(e) + "</td></tr>";
+      }).join("") : "<tr><td colspan=\"5\" class=\"muted\">No maps for this level.</td></tr>";
+
+      // Monsters: value per kill, and per 1,000 HP for when kills are no longer one hit.
+      var list = mobs.filter(function (x) { return x.m.lv <= hi && x.m.lv >= lo && x.ev > 0; })
+        .sort(function (a, b) { return b.ev - a.ev; }).slice(0, 12);
+      mobsBody.innerHTML = list.length ? list.map(function (x, i) {
+        var mu = farmMatchup(x.m, pick, L);
+        return "<tr class=\"" + (mu.hard ? "thin" : i < 3 ? "hl" : "") + "\"><td><strong>" + esc(x.m.n) + "</strong>" + (mu.notes.length ? "<br><span class=\"small muted\">" + esc(mu.notes.join(", ")) + "</span>" : "") + "</td>" +
+          "<td class=\"num\">" + x.m.lv + "</td><td class=\"num\">" + fmt(x.m.hp) + "</td>" +
+          "<td class=\"num\"><strong>" + farmMesos(x.ev) + "</strong></td><td class=\"num\">" + fmt(Math.round(x.ev / x.m.hp * 1000)) + "</td>" +
+          "<td class=\"small\">" + x.parts.slice(0, 3).filter(function (d) { return d.ev > 0; }).map(dropTxt).join("<br>") + "</td>" +
+          "<td class=\"small\">" + (x.best ? esc(x.best.n) + " <span class=\"muted\">(" + x.best.c + ")</span>" : "") + "</td></tr>";
+      }).join("") : "<tr><td colspan=\"7\" class=\"muted\">No monsters for this level.</td></tr>";
+    }
+    segEl.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        pick = b.getAttribute("data-k"); store.set("farm.class", pick);
+        segEl.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        draw();
+      });
+    });
+    draw();
+    // Level changes on a class tab should show here without a reload.
+    document.querySelectorAll("nav.tabs button[data-tab=\"farm\"]").forEach(function (b) { b.addEventListener("click", function () { drawSummary(); draw(); }); });
+
+    var when = new Date(D.fetchedAt);
+    var whenTxt = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    document.getElementById("farm-source").innerHTML = "Values are the average drop worth, not a promise: rare drops (1 in thousands) are averaged in, so a short session usually earns less. " +
+      "Drop chances are OSMLib reference rates from old MapleSEA, which Classic appears to use; Classic's real rates may differ. " +
+      "Prices are " + (isMesoWatch(D) ? esc(D.sourceName || "MesoWatch real sales") : "NiaMeowDB") + ", read " + esc(whenTxt) + "; a drop with under 5 sales counts at its NPC price. " +
+      "Mesos the monsters drop are not included. Each character's list leaves out maps where most of the value sits on monsters with 300+ defense against its attacks, " +
+      "or, for the I/L from level 41, monsters that resist both Ice and Lightning (greyed in the monster table). Element notes for the I/L start at 31 (Cold Beam) and 41 (Thunder Bolt), following its build. " +
+      "Spawn counts, defenses and elements from the OSMS Data Explorer datamine; bosses are left out because they respawn on timers.";
+  }
+
+  var TABS = ["overview", "bandit", "assassin", "il", "kpq", "cash", "market", "farm", "launch"];
+  function show(tab) {
+    if (TABS.indexOf(tab) < 0) tab = "overview";
+    document.querySelectorAll("nav.tabs button").forEach(function (b) {
+      b.setAttribute("aria-selected", String(b.getAttribute("data-tab") === tab));
+    });
+    document.querySelectorAll("section.tab").forEach(function (s) {
+      s.classList.toggle("active", s.id === "tab-" + tab);
+    });
+    store.set("tab", tab);
+  }
+  document.querySelectorAll("nav.tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = b.getAttribute("data-tab");
+      if (location.hash !== "#" + t) history.replaceState(null, "", "#" + t);
+      show(t);
+      window.scrollTo(0, 0);
+    });
+  });
+  window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
+
+  ["bandit", "assassin", "il"].forEach(renderClass);
+  renderChecklist();
+  renderPuzzles();
+  renderOres();
+  renderSell();
+  renderNx();
+  renderBuy();
+  renderFarm();
+  show(location.hash ? location.hash.slice(1) : store.get("tab", "overview"));
+})();
+</script>
+</body>
+</html>

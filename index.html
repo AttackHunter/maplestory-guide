@@ -268,6 +268,21 @@ tr.thin td { color: var(--muted); }
 .buy-verdict.bad { border-left-color: var(--bandit); } .buy-verdict.bad .v-head { color: var(--bandit); }
 .quest-tbl td:first-child { width: 1%; } .quest-tbl input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--c); }
 #buy-class button[aria-pressed="true"] { background: var(--maple); }
+/* How to get an item: chips in the market tables, the full list in the price checker */
+.src-cell { min-width: 150px; }
+.src { display: inline-flex; align-items: center; gap: 5px; margin: 1px 8px 1px 0; font-size: 12px; white-space: nowrap; }
+.src::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--k); flex: none; }
+.src.s { --k: var(--ok); } .src.c { --k: var(--bar); } .src.q { --k: var(--il); }
+.src.d { --k: var(--bandit); } .src.x, .src.n { --k: var(--assassin); }
+button.nm { all: unset; cursor: pointer; font-weight: 700; color: var(--text); }
+button.nm:hover { text-decoration: underline; text-decoration-color: var(--maple); }
+button.nm:focus-visible { outline: 2px solid var(--maple); outline-offset: 2px; border-radius: 3px; }
+.src-list { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.src-list h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.src-list h5 { margin: 10px 0 2px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.src-list h5::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--k); }
+.src-list ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.src-list li { margin: 2px 0; }
 
 /* Ore price chart (its colors are tokens in the palette at the top) */
 .ore-card { position: relative; padding: 22px 18px 14px; }
@@ -632,7 +647,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   </div>
   <div class="tbl-wrap sell-wrap">
     <table id="sell-table">
-      <thead><tr><th>Item</th><th>Type</th><th class="num">Player price</th><th>Last 7 days</th><th class="num">NPC pays</th><th class="num">x NPC</th><th class="num">Reports</th></tr></thead>
+      <thead><tr><th>Item</th><th>Type</th><th>How to get</th><th class="num">Player price</th><th>Last 7 days</th><th class="num">NPC pays</th><th class="num">x NPC</th><th class="num">Reports</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -661,7 +676,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   </div>
   <div class="tbl-wrap sell-wrap">
     <table id="buy-gear">
-      <thead><tr><th>Item</th><th>Slot</th><th class="num">Lv</th><th>Stats</th><th class="num">Typical</th><th>Last 7 days</th><th class="num">Good buy at</th><th class="num">Reports</th></tr></thead>
+      <thead><tr><th>Item</th><th>Slot</th><th class="num">Lv</th><th>Stats</th><th>How to get</th><th class="num">Typical</th><th>Last 7 days</th><th class="num">Good buy at</th><th class="num">Reports</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -852,6 +867,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 <script src="gamedata.js"></script>
 <script src="farmdata.js"></script>
 <script src="price-history.js"></script>
+<script src="sources.js"></script>
 <script>
 (function () {
   "use strict";
@@ -1946,6 +1962,86 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     trendResize = setTimeout(function () { if (trendShown) showTrend(trendShown); }, 150);
   });
 
+  // ---------- How to get an item: sources.js (build-sources.mjs) plus the crate odds in CRATES ----------
+  var SRC = (window.SOURCES && window.SOURCES.items) || {};
+  var SRC_RANK = { s: 0, c: 1, q: 2, d: 3, x: 4, n: 5 };
+  var srcLower = null, crateSrc = null;
+  function sourcesFor(name) {
+    if (!crateSrc) {
+      crateSrc = {};
+      Object.keys(CRATES).forEach(function (k) {
+        Object.keys(CRATES[k].rates).forEach(function (n) { (crateSrc[n] = crateSrc[n] || []).push({ k: "x", c: CRATES[k].label, r: CRATES[k].rates[n] }); });
+      });
+    }
+    return (SRC[name] || []).concat(crateSrc[name] || []).sort(function (a, b) { return SRC_RANK[a.k] - SRC_RANK[b.k]; });
+  }
+  // The name as sources.js spells it, for a name typed in any case.
+  function srcName(typed) {
+    if (!srcLower) { srcLower = {}; Object.keys(SRC).concat(Object.keys(crateSrc || {})).forEach(function (n) { srcLower[n.toLowerCase()] = n; }); }
+    return srcLower[typed.trim().toLowerCase()] || null;
+  }
+  // Cheapest NPC shop anyone can use: citizen-only shops left out, and Maple Road too (no way back once you leave it).
+  function shopFor(name) { return sourcesFor(name).filter(function (e) { return e.k === "s" && !e.cz && !/^Maple Road/.test(e.town); })[0] || null; }
+  function srcChips(name) {
+    var by = {};
+    sourcesFor(name).forEach(function (e) { (by[e.k] = by[e.k] || []).push(e); });
+    var out = [];
+    if (by.s) out.push(["s", "NPC shop " + fmt(by.s[0].p)]);
+    if (by.c) out.push(["c", "Craft"]);
+    if (by.q) out.push(["q", by.q.length > 1 ? by.q.length + " quests" : "Quest"]);
+    if (by.d) out.push(["d", by.d[0].m + (by.d[0].boss ? " (boss)" : "") + (by.d.length > 1 ? " +" + (by.d.length - 1) : "")]);
+    if (by.x) out.push(["x", by.x[0].c.replace(/ \(.*\)$/, "") + " " + by.x[0].r + "%"]);
+    if (by.n) out.push(["n", "Cash Shop"]);
+    return "<td class=\"src-cell\">" + (out.length ? out.map(function (o) { return "<span class=\"src " + o[0] + "\">" + esc(o[1]) + "</span>"; }).join("") :
+      "<span class=\"small muted\">not known yet</span>") + "</td>";
+  }
+  function srcLine(e) {
+    if (e.k === "s") return "<strong>" + esc(e.npc) + "</strong>, " + esc(e.loc && e.loc !== e.town ? e.loc + ", " + e.town : e.town) + ": <strong>" + fmt(e.p) + "</strong> mesos" +
+      (e.cz ? " <span class=\"muted\">(needs " + esc(e.town) + " citizen grade " + esc(e.cz) + ")</span>" : "");
+    if (e.k === "c") return "<strong>" + esc(e.d) + " Lv " + e.lv + "</strong>: " + esc(e.ing) + (e.meso ? ", " + fmt(e.meso) + " mesos" : "") + (e.n > 1 ? " <span class=\"muted\">(makes " + e.n + ")</span>" : "");
+    if (e.k === "q") {
+      var how = e.pick ? "pick one of " + e.pick : e.pct != null ? e.pct + "% chance (weighted random)" : "always";
+      return "<strong>" + esc(e.q) + "</strong> <span class=\"muted\">(" + esc([e.npc, e.town, e.lv ? "Lv " + e.lv : ""].filter(Boolean).join(", ")) + ")</span>: " +
+        (e.n > 1 ? e.n + "x, " : "") + how + (e.job ? ", " + esc(e.job) + " reward" : "") + (e.sex ? ", " + e.sex + " characters" : "");
+    }
+    if (e.k === "d") return "<strong>" + esc(e.m) + "</strong>" + (e.boss ? " (boss)" : "") + ", Lv " + e.lv + (e.map ? ", most on " + esc(e.map) : "") + ": " +
+      [e.v ? "seen in Classic" : "", e.r != null ? "reference chance " + farmChance(e.r) : ""].filter(Boolean).join(", ");
+    if (e.k === "x") return "<strong>" + esc(e.c) + "</strong>: " + e.r + "% per pull";
+    return "<strong>" + fmt(e.nx) + " NX</strong>" + (e.n > 1 ? " for " + e.n : "") + (e.days ? ", lasts " + e.days + " days" : "");
+  }
+  var SRC_HEAD = { s: "Buy from an NPC", c: "Craft it", q: "Quest reward", d: "Monster drop", x: "Crate", n: "Cash Shop" };
+  function howToGet(name) {
+    var list = sourcesFor(name);
+    if (!list.length) return "<div class=\"src-list\"><h4>How to get it</h4><p class=\"small muted\" style=\"margin:0\">Not in our data yet: no NPC shop, quest, recipe or crate has it, and players have not reported a drop.</p></div>";
+    var html = "<div class=\"src-list\"><h4>How to get it</h4>", kinds = [];
+    list.forEach(function (e) { if (kinds.indexOf(e.k) < 0) kinds.push(e.k); });
+    kinds.forEach(function (k) {
+      // Long lists keep their best rows: 4 shops (cheapest first), 5 quests (lowest level first), 6 monsters (players' reports first).
+      var rows = list.filter(function (e) { return e.k === k; }), cap = { s: 4, q: 5, d: 6 }[k] || 99, extra = rows.slice(cap);
+      rows = rows.slice(0, cap);
+      html += "<h5 class=\"src " + k + "\">" + SRC_HEAD[k] + "</h5><ul>" + rows.map(function (e) { return "<li>" + srcLine(e) + "</li>"; }).join("") +
+        (extra.length ? "<li class=\"muted\">Also " + (k === "s" ? "sold by " : k === "q" ? "from the quests " : "from ") + esc(extra.map(function (e) {
+          return k === "s" ? e.npc + " (" + e.town + ", " + fmt(e.p) + ")" : k === "q" ? e.q : e.m;
+        }).join(", ")) + "</li>" : "") + "</ul>";
+    });
+    var seen = list.some(function (e) { return e.k === "d" && e.v; }), ref = list.some(function (e) { return e.k === "d" && e.r != null; });
+    if (seen || ref) html += "<p class=\"small muted\" style=\"margin:8px 0 0\">" + (seen ? "\"Seen in Classic\" means players reported the drop on NiaMeowDB. " : "") +
+      (ref ? "Reference chances are old MapleSEA rates; Classic's may differ." : "") + "</p>";
+    return html + "</div>";
+  }
+  // Tapping an item name in a market table opens it in the price checker, with its chart and how to get it.
+  function lookUp(name) {
+    var el = document.getElementById("buy-item");
+    el.value = name;
+    el.dispatchEvent(new Event("input"));
+    document.getElementById("buy-verdict").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest && ev.target.closest("button.nm");
+    if (b) lookUp(b.getAttribute("data-name"));
+  });
+  function nameBtn(name) { return "<button type=\"button\" class=\"nm\" data-name=\"" + esc(name) + "\" title=\"Price, chart and how to get it\">" + esc(name) + "</button>"; }
+
   function renderSell() {
     var D = window.PRICE_DATA;
     var lead = document.getElementById("sell-lead");
@@ -2002,13 +2098,13 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       });
       tbody.innerHTML = rows.length ? rows.map(function (i) {
         var thin = i.reports < 3;
-        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(i.name) + "</strong>" + (i.keep ? "<span class=\"badge\">Kerning donation</span>" : "") + "</td>" +
-          "<td>" + esc(i.sub || i.type) + "</td>" +
+        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td>" + nameBtn(i.name) + (i.keep ? "<span class=\"badge\">Kerning donation</span>" : "") + "</td>" +
+          "<td>" + esc(i.sub || i.type) + "</td>" + srcChips(i.name) +
           "<td class=\"num\"><strong>" + fmt(i.median) + "</strong></td>" + trendCell(i.name) +
           "<td class=\"num\">" + (i.npc == null ? "" : fmt(i.npc)) + "</td>" +
           "<td class=\"num\">" + (i.x == null ? "" : Math.round(i.x) + "x") + "</td>" +
           "<td class=\"num\">" + i.reports + (thin ? " (thin)" : "") + "</td></tr>";
-      }).join("") : "<tr><td colspan=\"7\" class=\"muted\">No priced item matches. Players may not have reported it yet.</td></tr>";
+      }).join("") : "<tr><td colspan=\"8\" class=\"muted\">No priced item matches. Players may not have reported it yet.</td></tr>";
     }
     catsEl.querySelectorAll("button").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -2028,7 +2124,10 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "Live data from the <a href=\"" + esc(D.source) + "\" target=\"_blank\" rel=\"noopener\">NiaMeowDB Free Market</a>, fetched " +
         esc(whenTxt) + ". Prices are NiaMeowDB's typical price from player reports, sales and asking prices mixed; items with under 3 reports are greyed out and listed last. NPC prices from NiaMeowDB item data. " +
         "Prices refresh automatically every 3 hours.";
+    document.getElementById("sell-source").innerHTML += " " + SRC_NOTE;
   }
+  var SRC_NOTE = "\"How to get\": NPC shops and the drops players saw in Classic from NiaMeowDB, quests and recipes from the OSMS Data Explorer datamine, " +
+    "crate odds from Nexon. Tap an item's name for its price chart and every way to get it.";
   // prices.js comes from MesoWatch real sales (import-mesowatch.mjs) or NiaMeowDB reports (update-prices.mjs).
   function isMesoWatch(D) { return !!D && (D.realSales || D.source === "MesoWatch"); }
 
@@ -2221,22 +2320,30 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       var price = parseInt(priceEl.value, 10);
       if (!it && trendShown) showTrend("");
       if (!itemEl.value.trim()) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<span class=\"muted\">Type an item and the price you see.</span>"; return; }
-      if (!it) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<span class=\"muted\">No player prices for that item yet. Pick a name from the list as you type.</span>"; return; }
+      if (!it) {
+        var sn = srcName(itemEl.value);
+        verdictEl.className = "card buy-verdict";
+        verdictEl.innerHTML = sn ? "<strong>" + esc(sn) + "</strong>: no player prices yet." + howToGet(sn) :
+          "<span class=\"muted\">No player prices for that item yet. Pick a name from the list as you type.</span>";
+        return;
+      }
       if (trendShown !== it.name) showTrend(it.name);
-      var tr = trendOf(it.name);
+      var tr = trendOf(it.name), shop = shopFor(it.name);
       var facts = "Players usually pay <strong>" + fmt(it.median) + "</strong>" + (it.npc != null ? ", the NPC pays " + fmt(it.npc) : "") +
         ". Based on " + it.reports + " report" + (it.reports === 1 ? "" : "s") + (it.reports < 3 ? ", so treat it as a rough guide" : "") + "." +
         (tr && Math.abs(tr.pct) >= 3 ? " The price is <strong>" + (tr.pct > 0 ? "rising" : "falling") + "</strong>: " + trendTxt(tr) +
           " this week, recent sales about " + fmt(niceRound(tr.to)) + "." : tr ? " The price has been steady this week." : "");
-      if (!(price >= 0)) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<strong>" + esc(it.name) + "</strong>: " + facts; return; }
+      var shopTxt = shop ? " " + esc(shop.npc) + " in " + esc(shop.town) + " sells it for <strong>" + fmt(shop.p) + "</strong>." : "";
+      if (!(price >= 0)) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<strong>" + esc(it.name) + "</strong>: " + facts + shopTxt + howToGet(it.name); return; }
       var r = price / it.median, cls, head;
-      if (it.npc && price < it.npc) { cls = "good"; head = "Buy it. That is less than an NPC pays for it (" + fmt(it.npc) + ")."; }
+      if (shop && price > shop.p) { cls = "bad"; head = "Don't buy it here: " + shop.npc + " in " + shop.town + " sells it for " + fmt(shop.p) + "."; shopTxt = ""; }
+      else if (it.npc && price < it.npc) { cls = "good"; head = "Buy it. That is less than an NPC pays for it (" + fmt(it.npc) + ")."; }
       else if (r <= 0.75) { cls = "good"; head = "Good deal: " + Math.round((1 - r) * 100) + "% under the usual price."; }
       else if (r <= 1.0) { cls = "fair"; head = "Fair price."; }
       else if (r <= 1.25) { cls = "high"; head = "A bit high. Offer around " + fmt(niceRound(it.median * 0.9)) + "."; }
       else { cls = "bad"; head = "Overpriced: " + Math.round((r - 1) * 100) + "% over the usual price."; }
       verdictEl.className = "card buy-verdict " + cls;
-      verdictEl.innerHTML = "<strong class=\"v-head\">" + esc(head) + "</strong> " + facts;
+      verdictEl.innerHTML = "<strong class=\"v-head\">" + esc(head) + "</strong> " + facts + shopTxt + howToGet(it.name);
     }
     itemEl.addEventListener("input", check);
     priceEl.addEventListener("input", check);
@@ -2272,11 +2379,11 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       });
       document.querySelector("#buy-gear tbody").innerHTML = rows.length ? rows.map(function (r) {
         var thin = r.i.reports < 3;
-        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(r.i.name) + "</strong></td><td>" + esc(r.slot) + "</td>" +
-          "<td class=\"num\">" + (r.lv || "") + "</td><td class=\"small\">" + esc(r.stats) + "</td>" +
+        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td>" + nameBtn(r.i.name) + "</td><td>" + esc(r.slot) + "</td>" +
+          "<td class=\"num\">" + (r.lv || "") + "</td><td class=\"small\">" + esc(r.stats) + "</td>" + srcChips(r.i.name) +
           "<td class=\"num\">" + fmt(r.i.median) + "</td>" + trendCell(r.i.name) + "<td class=\"num\"><strong>" + fmt(niceRound(r.i.median * 0.8)) + "</strong></td>" +
           "<td class=\"num\">" + r.i.reports + "</td></tr>";
-      }).join("") : "<tr><td colspan=\"8\" class=\"muted\">No priced gear in this level range yet.</td></tr>";
+      }).join("") : "<tr><td colspan=\"9\" class=\"muted\">No priced gear in this level range yet.</td></tr>";
     }
     segEl.querySelectorAll("button").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -2292,7 +2399,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     document.getElementById("buy-source").innerHTML = "Prices from " + (isMesoWatch(D) ? esc(D.sourceName || "MesoWatch real sales") : "NiaMeowDB") + ", read " + esc(whenTxt) +
       ". \"Good buy at\" is 80% of the typical price. \"Last 7 days\" is the daily average sale price: the arrow compares the newest 2 days with sales to the oldest 2, and steady means within 3%" +
       (PH ? " (history to " + esc(dayLabel(PH.dates[PH.dates.length - 1])) + ")" : "") + ". Item levels, jobs and stats from the OSMS Data Explorer datamine. Greyed rows have under 3 " +
-      (isMesoWatch(D) ? "sales" : "reports") + ". Some gear is male- or female-only, so check the tooltip before you pay.";
+      (isMesoWatch(D) ? "sales" : "reports") + ". Some gear is male- or female-only, so check the tooltip before you pay. " + SRC_NOTE;
   }
 
   // ---------- Farming: drop value per map and per kill ----------

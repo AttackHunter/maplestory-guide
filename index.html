@@ -283,6 +283,30 @@ button.nm:focus-visible { outline: 2px solid var(--maple); outline-offset: 2px; 
 .src-list h5::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--k); }
 .src-list ul { margin: 0; padding-left: 18px; font-size: 14px; }
 .src-list li { margin: 2px 0; }
+/* Make money tab */
+.money-plays { display: grid; gap: 12px; }
+.money-plays .card h4 { margin: 0 0 4px; font-size: 16px; }
+.money-plays .card p { margin: 0; }
+.money-ask code { background: var(--surface-2); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
+/* Boss timers */
+.boss-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.boss-form label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; min-width: 0; }
+.boss-form label.chk { flex-direction: row; align-items: center; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--text); }
+.boss-form select, .boss-form input[type=number], .boss-form input[type=text] {
+  padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 500 14px system-ui; max-width: 100%;
+}
+.boss-form input[type=text], .boss-form input[type=number] { width: 90px; }
+.btn { border: 0; border-radius: 10px; padding: 9px 18px; font: 700 14px system-ui; cursor: pointer; background: var(--maple); color: var(--on-accent); }
+.boss-timers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 14px; }
+.boss-timer { padding: 14px; border-left: 4px solid var(--border); }
+.boss-timer.soon { border-left-color: var(--maple); }
+.boss-timer.open, .boss-timer.up { border-left-color: var(--ok); }
+.bt-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bt-count { font: 800 26px/1.2 system-ui; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.boss-timer.soon .bt-count { color: var(--maple); }
+.boss-timer.open .bt-count, .boss-timer.up .bt-count { color: var(--ok); font-size: 18px; }
+.bt-actions { display: flex; gap: 8px; margin-top: 10px; }
+.bt-actions button { border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 8px; padding: 5px 10px; font: 600 12px system-ui; cursor: pointer; }
 
 /* Ore price chart (its colors are tokens in the palette at the top) */
 .ore-card { position: relative; padding: 22px 18px 14px; }
@@ -382,6 +406,8 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     <button role="tab" data-tab="cash" style="--tc: var(--maple)"><span class="dot"></span>Cash Shop</button>
     <button role="tab" data-tab="market" style="--tc: var(--maple)"><span class="dot"></span>Market</button>
     <button role="tab" data-tab="farm" style="--tc: var(--maple)"><span class="dot"></span>Farming</button>
+    <button role="tab" data-tab="money" style="--tc: var(--ok)"><span class="dot"></span>Make money</button>
+    <button role="tab" data-tab="bosses" style="--tc: var(--bandit)"><span class="dot"></span>Boss timers</button>
     <button role="tab" data-tab="launch" style="--tc: var(--maple)"><span class="dot"></span>Launch &amp; 70+</button>
   </div>
 </nav>
@@ -797,6 +823,66 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     </ul>
   </div>
   <p class="small muted">Spawn counts, respawn rates, stats and player-seen drops from the NiaMeowDB <a href="https://meowdb.com/msclassic/monsters/12" target="_blank" rel="noopener">Octopus</a> page; ore prices from the Market tab.</p>
+</section>
+
+<!-- MAKE MONEY -->
+<section class="tab" id="tab-money">
+  <h2>Make money</h2>
+  <p class="lead">The playbook, best first. Every number on this tab is worked out from the latest price refresh (<span id="money-when"></span>), so it stays current.</p>
+  <div class="grid g4" id="money-tiles"></div>
+
+  <h3>The playbook</h3>
+  <div class="money-plays" id="money-plays"></div>
+
+  <h3>Store fillers: buy from an NPC, sell to players</h3>
+  <div class="tbl-wrap">
+    <table id="money-npc">
+      <thead><tr><th>Item</th><th>Buy from</th><th class="num">NPC sells for</th><th class="num">Players pay</th><th class="num">Profit each</th><th class="num">Sales</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h3>Crafting profits</h3>
+  <p class="small muted">What a recipe's output sells for, minus its ingredients (cheapest of players or an NPC shop) and the crafting fee. You need the profession at the level shown. Greyed rows have under 30 sales, so check the price first.</p>
+  <div class="tbl-wrap sell-wrap">
+    <table id="money-craft">
+      <thead><tr><th>Make</th><th>Profession</th><th>Ingredients</th><th class="num">Costs</th><th class="num">Sells for</th><th class="num">Profit</th><th class="num">Sales</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h3>Skip these</h3>
+  <div class="card"><ul class="tight" id="money-avoid"></ul></div>
+  <p class="small muted" id="money-source"></p>
+</section>
+
+<!-- BOSS TIMERS -->
+<section class="tab" id="tab-bosses" data-c="bandit">
+  <h2>Boss timers</h2>
+  <p class="lead">Record a boss kill on your channel and see when it can come back. Timers stay in this browser, so keep the tab open on a second screen.</p>
+  <div class="card">
+    <div class="boss-form">
+      <label>Boss<select id="boss-pick"></select></label>
+      <label>Channel<input type="text" id="boss-ch" inputmode="numeric" placeholder="e.g. 7"></label>
+      <label>Killed (min ago)<input type="number" id="boss-ago" min="0" step="1" placeholder="0"></label>
+      <button type="button" class="btn" id="boss-add">Killed</button>
+    </div>
+    <div class="boss-form" style="margin-top:12px">
+      <label class="chk"><input type="checkbox" id="boss-sound"> Beep 1 minute before and when a boss can spawn</label>
+      <label>Late margin (min)<input type="number" id="boss-late" min="0" step="5" placeholder="0"></label>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">The game timer is the earliest a boss can return. If you see them come back later than that, set a late margin and the card stays "can spawn now" until it passes. Browsers slow timers in hidden tabs, so a beep can come up to a minute late there.</p>
+  </div>
+  <div class="boss-timers" id="boss-timers"></div>
+
+  <h3>Bosses and their game timers</h3>
+  <div class="tbl-wrap">
+    <table id="boss-table">
+      <thead><tr><th>Boss</th><th class="num">Respawn</th><th class="num">Lv</th><th class="num">HP</th><th>Map</th><th>Nearest town</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small muted" id="boss-source"></p>
 </section>
 
 <!-- LAUNCH & 70+ -->
@@ -2031,6 +2117,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   }
   // Tapping an item name in a market table opens it in the price checker, with its chart and how to get it.
   function lookUp(name) {
+    if (!document.getElementById("tab-market").classList.contains("active")) { history.replaceState(null, "", "#market"); show("market"); }
     var el = document.getElementById("buy-item");
     el.value = name;
     el.dispatchEvent(new Event("input"));
@@ -2151,7 +2238,18 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "Orange Cat Beanie": 5, "Heart Sunglasses": 5, "Red Check Rider": 5, "Violet Dot Jeans": 5, "Pink Bunny Sweater": 5,
       "Hearts Tights": 5, "Pink Elephant Slippers": 5, "Loose Fit Sweater": 4.5, "Stocking Shorts": 4.5, "Detective Glass": 2,
       "Blank Eye Patch": 2, "Heartbreaker Lips": 2, "Starlight Heart Scepter": 2, "Ink-and-Wash Thought Bubble Ring": 5.75,
-      "Ink-and-Wash Painting Name Tag Ring": 5.75, "Chocolate Label Ring": 5.75, "Chocolate Chat Ring": 5.75 } }
+      "Ink-and-Wash Painting Name Tag Ring": 5.75, "Chocolate Label Ring": 5.75, "Chocolate Chat Ring": 5.75 } },
+    // The October crate (on sale to 4 Nov). Nexon's published rates, as listed in NiaMeowDB's crate simulator.
+    fashion: { label: "New crate", url: null, rates: {
+      "Black Blazer": 1, "Black Suit Pants": 1, "Cute Mouse Ears": 1, "Frameless Glasses": 1, "Gentleman's Mustache": 1, "Heart Balloon": 1,
+      "Michael Wings": 1, "Orange Hard-Rimmed Glasses": 1, "Race Ace Cap": 1, "Ragged Top": 1, "Silver Earrings": 1, "Stylish Pink Cotton Cap": 1,
+      "Superstar Hoodie": 1, "Torn-Up Jeans": 1, "Toy Rifle": 1, "Black “Hit Me” Shirt": 1.5, "Blue Bell Dress": 2, "Blue Frill Blouse": 2,
+      "Buddy Overall Jeans (Blue)": 2, "Buddy Overall Jeans (Red)": 2, "Green Overall": 2, "Plastic Slingshot": 2, "Starred Hunting Hat": 2,
+      "Beige Checkered Hat": 2.5, "Black Cardigan Set": 2.5, "Black Classic Sneakers": 2.5, "Black Dress Shoes": 2.5, "Brown Casual Look": 2.5,
+      "Brown Dress Shoes": 2.5, "Cherry Layered T": 2.5, "Crusader T-Shirt": 2.5, "Denim Wrinkled Skirt": 2.5, "Detective Hat": 2.5,
+      "Faded Bell-Bottom Jeans": 2.5, "Kitty Camping Hat": 2.5, "Orange Hooded Vest": 2.5, "Premium Trenchcoat": 2.5, "Puffy Brown Hat": 2.5,
+      "Race Ace Suit": 2.5, "Race Queen Boots": 2.5, "Race Queen Uniform": 2.5, "Velcro High Tops": 2.5, "Washed Jeans": 2.5, "White Beanie": 2.5,
+      "White Casual Suit": 2.5, "Wild Pants": 2.5, "Camping Boots": 3, "Green Camping Hat": 3, "Green Camping Shirt": 3, "Green Camping Shorts": 3 } }
   };
   var CRATE_NAME = "Founder's Mystery Fashion Crate";
   // Latest sale price with enough sales behind it: last day (5+ sales), else last 3 days, else 14 days (3+ sales).
@@ -2283,7 +2381,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       (isMesoWatch(D) ? "Sale prices are " + esc(D.sourceName || "MesoWatch real sales") + ": the typical price of every sale seen. " :
         "Sale prices are the median of reported <em>sales</em> on <a href=\"" + esc(D.source) + "\" target=\"_blank\" rel=\"noopener\">NiaMeowDB</a>: the last day when it has 5 or more sales, " +
         "else the last 3 days, else 14 days. \"Asking\" is the median listing price, usually higher. ") + "Crate odds from Nexon: <a href=\"" + CRATES.founder.url +
-      "\" target=\"_blank\" rel=\"noopener\">Founder's</a>, <a href=\"" + CRATES.aurora.url + "\" target=\"_blank\" rel=\"noopener\">Aurora</a>. Refreshed together with the table above.";
+      "\" target=\"_blank\" rel=\"noopener\">Founder's</a>, <a href=\"" + CRATES.aurora.url + "\" target=\"_blank\" rel=\"noopener\">Aurora</a>; the new crate's are Nexon's published rates too. Refreshed together with the table above.";
   }
 
   // ---------- Buying smarter (price check + gear for your level, from prices.js and gamedata.js) ----------
@@ -2552,7 +2650,203 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "Spawn counts, defenses and elements from the OSMS Data Explorer datamine; bosses are left out because they respawn on timers.";
   }
 
-  var TABS = ["overview", "bandit", "assassin", "il", "kpq", "cash", "market", "farm", "launch"];
+  // ---------- Make money: the playbook, every number from prices.js, sources.js and CRATES ----------
+  function renderMoney() {
+    var D = window.PRICE_DATA, tiles = document.getElementById("money-tiles");
+    if (!D || !D.items) { tiles.innerHTML = "<p class=\"muted\">No price data yet.</p>"; return; }
+    var FEE = 0.97, med = {};
+    D.items.forEach(function (i) { if (i.median != null) med[i.name] = i; });
+    function r100(v) { return Math.round(v / 100) * 100; }
+    var when = new Date(D.fetchedAt);
+    document.getElementById("money-when").textContent = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    var coupon = med["Mystery Palette Exchange Coupon"], cp = coupon ? coupon.median : null;
+    var stamp = cp ? cp * FEE / 5 : 0, maxTrash = cp ? cp / 6 : 0, ct = cp ? trendOf(coupon.name) : null;
+    tiles.innerHTML = [
+      ["Palette coupon sells for", cp ? fmt(r100(cp)) : "no sales yet", coupon ? coupon.reports + " sales" + (ct ? ", " + trendTxt(ct) + " this week" : "") : ""],
+      ["One Aurora Stamp is worth", stamp ? fmt(r100(stamp)) : "?", "coupon × 0.97 ÷ 5 stamps"],
+      ["Pay at most for NX trash", maxTrash ? fmt(r100(maxTrash)) : "?", "coupon ÷ 6, leaves about 15%"],
+      ["Store fee", "3%", "taken from every sale in your store"]
+    ].map(function (t) { return "<div class=\"tile\"><h4>" + t[0] + "</h4><p>" + t[1] + "</p><small>" + esc(t[2]) + "</small></div>"; }).join("");
+
+    // Buy from an NPC shop anyone can use, sell to players.
+    var npc = [];
+    Object.keys(SRC).forEach(function (n) {
+      var i = med[n], sh = shopFor(n);
+      if (!i || i.reports < 20 || !sh) return;
+      var gain = i.median * FEE - sh.p;
+      if (gain >= 50) npc.push({ n: n, sh: sh, i: i, gain: gain });
+    });
+    npc.sort(function (a, b) { return b.gain * Math.min(b.i.reports, 500) - a.gain * Math.min(a.i.reports, 500); });
+    npc = npc.slice(0, 12);
+    document.querySelector("#money-npc tbody").innerHTML = npc.length ? npc.map(function (r) {
+      return "<tr><td>" + nameBtn(r.n) + "</td><td>" + esc(r.sh.npc) + ", " + esc(r.sh.town) + "</td><td class=\"num\">" + fmt(r.sh.p) + "</td><td class=\"num\">" + fmt(r.i.median) +
+        "</td><td class=\"num\"><strong>+" + fmt(Math.round(r.gain)) + "</strong></td><td class=\"num\">" + r.i.reports + "</td></tr>";
+    }).join("") : "<tr><td colspan=\"6\" class=\"muted\">Nothing an NPC sells is worth reselling right now.</td></tr>";
+
+    // Crafting: output sale value minus ingredients (cheapest of players or an open NPC shop) and the fee.
+    function unit(n) {
+      var i = med[n], c = [], sh = shopFor(n);
+      if (i && i.reports >= 5) c.push(i.median);
+      if (sh) c.push(sh.p);
+      return c.length ? Math.min.apply(null, c) : null;
+    }
+    var craft = {};
+    Object.keys(SRC).forEach(function (n) {
+      var out = med[n];
+      if (!out || out.reports < 10) return;
+      SRC[n].forEach(function (e) {
+        if (e.k !== "c") return;
+        var cost = e.meso || 0, ok = true;
+        e.ing.split(", ").forEach(function (g) {
+          var m = g.match(/^(\d+) (.+)$/), u = m ? unit(m[2]) : null;
+          if (u == null) ok = false; else cost += u * +m[1];
+        });
+        if (!ok) return;
+        var gain = out.median * (e.n || 1) * FEE - cost;
+        if (gain > 0 && (!craft[n] || craft[n].gain < gain)) craft[n] = { n: n, e: e, cost: cost, val: out.median * (e.n || 1), gain: gain, sales: out.reports };
+      });
+    });
+    var crafts = Object.keys(craft).map(function (k) { return craft[k]; }).sort(function (a, b) { return b.gain - a.gain; }).slice(0, 15);
+    document.querySelector("#money-craft tbody").innerHTML = crafts.length ? crafts.map(function (r) {
+      return "<tr" + (r.sales < 30 ? " class=\"thin\"" : "") + "><td>" + nameBtn(r.n) + (r.e.n > 1 ? " <span class=\"muted\">×" + r.e.n + "</span>" : "") + "</td><td>" + esc(r.e.d) + " Lv " + r.e.lv + "</td>" +
+        "<td class=\"small\">" + esc(r.e.ing) + (r.e.meso ? " + " + fmt(r.e.meso) + " mesos" : "") + "</td><td class=\"num\">" + fmt(Math.round(r.cost)) + "</td><td class=\"num\">" + fmt(r.val) +
+        "</td><td class=\"num\"><strong>+" + fmt(Math.round(r.gain)) + "</strong></td><td class=\"num\">" + r.sales + "</td></tr>";
+    }).join("") : "<tr><td colspan=\"7\" class=\"muted\">No profitable recipe with priced ingredients right now.</td></tr>";
+
+    // Crates: average value opened (each item at its sale price after the fee, or as a stamp if that is worth more).
+    function opened(rates, stampable) {
+      var ev = 0;
+      Object.keys(rates).forEach(function (n) {
+        var i = med[n], v = i && i.reports >= 5 ? i.median * FEE : 0;
+        ev += rates[n] / 100 * (stampable ? Math.max(v, stamp) : v);
+      });
+      return ev;
+    }
+    var newC = med["Mystery Fashion Crate"], fC = med["Founder's Mystery Fashion Crate"];
+    var plays = [];
+    if (newC) plays.push(["Resell crates one at a time", "Players often sell 11-packs for less per crate than a single crate goes for. A single new crate sells for about <strong>" +
+      fmt(r100(newC.median)) + "</strong> (" + newC.reports + " sales), so buy a pack when it works out under about <strong>" + fmt(r100(newC.median * FEE - 3000)) +
+      "</strong> a crate, then list singles just under the market. Hover a box first: some say <em>Untradable</em> and can only be opened."]);
+    if (cp) plays.push(["Turn NX trash into palette coupons", "Buy unworn crate cosmetics at <strong>" + fmt(r100(maxTrash)) + " or less</strong>, right-click them for Aurora Stamps, and turn every 5 stamps into a coupon that sells for about " +
+      fmt(r100(cp)) + ": about <strong>+" + fmt(r100(cp * FEE - 5 * maxTrash)) + " per coupon</strong>. Convert and sell the same day" + (ct && ct.pct <= -3 ? ": the coupon is " + trendTxt(ct) + " this week." : ".")]);
+    plays.push(["Flip underpriced listings", "Buy what is listed well under its usual price and relist it just under the market. Stick to items that are all the same (scrolls, Etc items, NX items, earrings) and hover gear first: a low stat roll is usually why it is cheap. Count the 3% fee before you buy."]);
+    if (npc.length) plays.push(["Fill empty store slots", "Buy from an NPC and sell to players: " + npc.slice(0, 3).map(function (r) {
+      return "<strong>" + esc(r.n) + "</strong> (" + esc(r.sh.npc) + ", " + fmt(r.sh.p) + ", +" + fmt(Math.round(r.gain)) + " each)";
+    }).join("; ") + ". Small, but a store slot is all it costs. Full list below."]);
+    var bestCraft = crafts.filter(function (r) { return r.sales >= 30; })[0];
+    if (bestCraft) plays.push(["Craft, if you have the profession", "The best well-traded recipe right now: <strong>" + esc(bestCraft.n) + "</strong> (" + esc(bestCraft.e.d) + " Lv " + bestCraft.e.lv + ") costs about " +
+      fmt(r100(bestCraft.cost)) + " to make and sells for about " + fmt(r100(bestCraft.val)) + ": <strong>+" + fmt(r100(bestCraft.gain)) + "</strong>. Full list below."]);
+    document.getElementById("money-plays").innerHTML = plays.map(function (p, k) {
+      return "<div class=\"card" + (k === 0 ? " rec" : "") + "\"><h4>" + (k + 1) + ". " + p[0] + "</h4><p>" + p[1] + "</p></div>";
+    }).join("");
+
+    var avoid = [];
+    if (newC || fC) avoid.push("<strong>Opening crates to flip.</strong> Opened, " + [newC ? "a new crate averages about " + fmt(r100(opened(CRATES.fashion.rates, true))) + " (sells unopened for about " + fmt(r100(newC.median)) + ")" : "",
+      fC ? "a Founder's crate about " + fmt(r100(opened(CRATES.founder.rates, true))) + " (unopened about " + fmt(r100(fC.median)) + ")" : ""].filter(Boolean).join(", and ") +
+      ", counting each item at its sale price after the fee or as a stamp. The big 1% items make it a gamble, not a flip.");
+    if (cp) avoid.push("<strong>20 stamps for an Aurora crate.</strong> An Aurora crate averages about " + fmt(r100(opened(CRATES.aurora.rates, false))) + "; the same 20 stamps as 4 coupons sell for about " + fmt(r100(4 * cp * FEE)) + ".");
+    avoid.push("<strong>Holding NX cosmetics.</strong> Most lose value every day while a crate is on sale. Sell them the day you get them.");
+    avoid.push("<strong>Farming for drops at levels 20 to 40.</strong> Drops there are worth tens of mesos a kill (see the <a href=\"#farm\">Farming tab</a>); one good flip pays more than an hour of it.");
+    document.getElementById("money-avoid").innerHTML = avoid.map(function (a) { return "<li>" + a + "</li>"; }).join("");
+    document.getElementById("money-source").innerHTML = "Prices are " + esc(D.sourceName || "MesoWatch real sales") + ". NPC shops and recipes from NiaMeowDB and the OSMS Data Explorer datamine. " +
+      "Crate odds as Nexon published them. Tap an item's name for its price chart and how to get it.";
+  }
+
+  // ---------- Boss timers: respawn timers from the datamine (farmdata.js bosses); kills are kept in this browser ----------
+  function renderBosses() {
+    var F = window.FARM_DATA, B = F && F.bosses, tbody = document.querySelector("#boss-table tbody");
+    if (!B || !B.length) { tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">No boss data yet.</td></tr>"; return; }
+    function hm(sec) { var h = Math.floor(sec / 3600), m = Math.round(sec % 3600 / 60); return (h ? h + " h" : "") + (m ? (h ? " " : "") + m + " min" : ""); }
+    // The datamine's map marks are internal names; the Forgotten Hollow boss map has no name yet.
+    var TOWN = { Rith: "Lith Harbor", KerningCity: "Kerning City", ForgottenHollow: "Forgotten Hollow", Dungeon: "Sleepywood dungeon" };
+    B.forEach(function (b) { b.spawns.forEach(function (s) { s.town = TOWN[s.town] || s.town; if (!s.n) s.n = "unnamed map" + (s.town ? " in " + s.town : ""); }); });
+    tbody.innerHTML = B.map(function (b) {
+      return b.spawns.map(function (s) {
+        return "<tr" + (s.inRelease ? "" : " class=\"thin\"") + "><td><strong>" + esc(b.n) + "</strong></td><td class=\"num\"><strong>" + hm(s.timer) + "</strong></td><td class=\"num\">" + b.lv +
+          "</td><td class=\"num\">" + fmt(b.hp) + "</td><td>" + (s.inRelease ? esc(s.n) + (s.st ? " <span class=\"muted\">(" + esc(s.st) + ")</span>" : "") : "<span class=\"muted\">its map is not in the release data</span>") +
+          "</td><td>" + esc(s.town || "") + "</td></tr>";
+      }).join("");
+    }).join("");
+    document.getElementById("boss-source").textContent = "Respawn timers, maps and stats from the OSMS Data Explorer datamine (each boss map's own spawn timer). Bosses with no spawn map in the release, like Crimson Balrog and Faust, are left out.";
+
+    var spawns = [], byKey = {};
+    B.forEach(function (b) { b.spawns.forEach(function (s) { if (s.inRelease && s.timer) { var x = { key: b.id + "|" + s.id, b: b, s: s }; spawns.push(x); byKey[x.key] = x; } }); });
+    if (!spawns.length) return;
+    var pick = document.getElementById("boss-pick"), chEl = document.getElementById("boss-ch"), agoEl = document.getElementById("boss-ago");
+    var lateEl = document.getElementById("boss-late"), soundEl = document.getElementById("boss-sound"), list = document.getElementById("boss-timers");
+    pick.innerHTML = spawns.map(function (x) { return "<option value=\"" + x.key + "\">" + esc(x.b.n) + " (Lv " + x.b.lv + "), " + esc(x.s.n) + "</option>"; }).join("");
+    pick.value = byKey[store.get("boss.pick", "")] ? store.get("boss.pick", "") : spawns[0].key;
+    chEl.value = store.get("boss.ch", "");
+    lateEl.value = store.get("boss.late", 0) || "";
+    soundEl.checked = store.get("boss.sound", true);
+    var timers = store.get("boss.timers", []).filter(function (t) { return byKey[t.k]; });
+    var seen = {}, fired = {}, actx = null;
+    function audio() {
+      try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch (e) {}
+    }
+    function beep(n) {
+      if (!actx) return;
+      for (var k = 0; k < n; k++) {
+        var o = actx.createOscillator(), g = actx.createGain(), t0 = actx.currentTime + k * 0.35;
+        o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.25);
+        o.start(t0); o.stop(t0 + 0.3);
+      }
+    }
+    function due(t) { return t.t + byKey[t.k].s.timer * 1000; }
+    function clock(ms) { return new Date(ms).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }); }
+    function mmss(ms) {
+      var s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+      return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0");
+    }
+    function save() { store.set("boss.timers", timers); }
+    function build() {
+      timers.sort(function (a, b) { return due(a) - due(b); });
+      list.innerHTML = timers.length ? timers.map(function (t, i) {
+        var x = byKey[t.k];
+        return "<div class=\"card boss-timer\" data-i=\"" + i + "\"><div class=\"bt-head\"><strong>" + esc(x.b.n) + "</strong><span class=\"pill\">Ch " + esc(t.ch || "?") + "</span></div>" +
+          "<div class=\"small muted\">" + esc(x.s.n) + ", killed " + clock(t.t) + "</div><div class=\"bt-count\"></div><div class=\"bt-sub small muted\"></div>" +
+          "<div class=\"bt-actions\"><button type=\"button\" data-act=\"again\">Killed again</button><button type=\"button\" data-act=\"del\">Remove</button></div></div>";
+      }).join("") : "<p class=\"muted\">No timers yet. Pick a boss, type the channel and press Killed.</p>";
+      tick();
+    }
+    function tick() {
+      var now = Date.now(), late = (parseInt(lateEl.value, 10) || 0) * 60000;
+      list.querySelectorAll(".boss-timer").forEach(function (card) {
+        var t = timers[+card.getAttribute("data-i")];
+        if (!t) return;
+        var d = due(t), id = t.k + "|" + t.ch + "|" + t.t, state, cnt = card.querySelector(".bt-count"), sub = card.querySelector(".bt-sub");
+        if (now < d) { seen[id] = 1; state = d - now <= 60000 ? "soon" : "wait"; cnt.textContent = mmss(d - now); sub.textContent = "can spawn at " + clock(d); }
+        else if (late && now < d + late) { state = "open"; cnt.textContent = "Can spawn now"; sub.textContent = "window open until about " + clock(d + late); }
+        else { state = "up"; cnt.textContent = "Up, or someone got it"; sub.textContent = "could spawn from " + clock(d) + ", " + mmss(now - d) + " ago"; }
+        card.className = "card boss-timer " + state;
+        if (soundEl.checked && seen[id]) {
+          if (state === "soon" && !fired[id + "s"]) { fired[id + "s"] = 1; beep(1); }
+          if (now >= d && !fired[id]) { fired[id] = 1; beep(3); }
+        }
+      });
+    }
+    document.getElementById("boss-add").addEventListener("click", function () {
+      audio();
+      var ago = parseInt(agoEl.value, 10) || 0;
+      timers.push({ k: pick.value, ch: chEl.value.trim(), t: Date.now() - ago * 60000 });
+      store.set("boss.pick", pick.value); store.set("boss.ch", chEl.value.trim());
+      agoEl.value = ""; save(); build();
+    });
+    list.addEventListener("click", function (ev) {
+      var b = ev.target.closest("button[data-act]");
+      if (!b) return;
+      var i = +b.closest(".boss-timer").getAttribute("data-i");
+      if (b.getAttribute("data-act") === "del") timers.splice(i, 1); else timers[i].t = Date.now();
+      audio(); save(); build();
+    });
+    lateEl.addEventListener("input", function () { store.set("boss.late", parseInt(lateEl.value, 10) || 0); tick(); });
+    soundEl.addEventListener("change", function () { store.set("boss.sound", soundEl.checked); if (soundEl.checked) { audio(); beep(1); } });
+    build();
+    setInterval(tick, 1000);
+  }
+
+  var TABS = ["overview", "bandit", "assassin", "il", "kpq", "cash", "market", "farm", "money", "bosses", "launch"];
   function show(tab) {
     if (TABS.indexOf(tab) < 0) tab = "overview";
     document.querySelectorAll("nav.tabs button").forEach(function (b) {
@@ -2581,6 +2875,8 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   renderNx();
   renderBuy();
   renderFarm();
+  renderMoney();
+  renderBosses();
   show(location.hash ? location.hash.slice(1) : store.get("tab", "overview"));
 })();
 </script>

@@ -307,6 +307,15 @@ button.nm:focus-visible { outline: 2px solid var(--maple); outline-offset: 2px; 
 .boss-timer.open .bt-count, .boss-timer.up .bt-count { color: var(--ok); font-size: 18px; }
 .bt-actions { display: flex; gap: 8px; margin-top: 10px; }
 .bt-actions button { border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 8px; padding: 5px 10px; font: 600 12px system-ui; cursor: pointer; }
+#boss-board td { vertical-align: middle; }
+.bb-where small { display: block; color: var(--muted); font-size: 12px; }
+.bb-rec { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.bb-rec input { width: 64px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 500 14px system-ui; }
+.bb-rec .btn { padding: 6px 12px; font-size: 13px; }
+.bb-chip { display: inline-block; margin: 2px 6px 2px 0; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap;
+  background: var(--surface-2); color: var(--muted); }
+.bb-chip.soon { background: color-mix(in srgb, var(--maple) 18%, transparent); color: var(--maple); }
+.bb-chip.open, .bb-chip.up { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
 
 /* Ore price chart (its colors are tokens in the palette at the top) */
 .ore-card { position: relative; padding: 22px 18px 14px; }
@@ -859,29 +868,22 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 <!-- BOSS TIMERS -->
 <section class="tab" id="tab-bosses" data-c="bandit">
   <h2>Boss timers</h2>
-  <p class="lead">Record a boss kill on your channel and see when it can come back. Timers stay in this browser, so keep the tab open on a second screen.</p>
-  <div class="card">
-    <div class="boss-form">
-      <label>Boss<select id="boss-pick"></select></label>
-      <label>Channel<input type="text" id="boss-ch" inputmode="numeric" placeholder="e.g. 7"></label>
-      <label>Killed (min ago)<input type="number" id="boss-ago" min="0" step="1" placeholder="0"></label>
-      <button type="button" class="btn" id="boss-add">Killed</button>
-    </div>
-    <div class="boss-form" style="margin-top:12px">
-      <label class="chk"><input type="checkbox" id="boss-sound"> Beep 1 minute before and when a boss can spawn</label>
-      <label>Late margin (min)<input type="number" id="boss-late" min="0" step="5" placeholder="0"></label>
-    </div>
-    <p class="small muted" style="margin:10px 0 0">The game timer is the earliest a boss can return. If you see them come back later than that, set a late margin and the card stays "can spawn now" until it passes. Browsers slow timers in hidden tabs, so a beep can come up to a minute late there.</p>
-  </div>
-  <div class="boss-timers" id="boss-timers"></div>
-
-  <h3>Bosses and their game timers</h3>
+  <p class="lead">The game never shows when a boss is up. Two ways to know: <strong>Megaphone sightings</strong> on each row shows players shouting things like "Zombie Mushmom CH28"; and when you kill a boss (or watch it die), type the channel and press <strong>Killed</strong>, and the board counts down to when it can come back there.</p>
   <div class="tbl-wrap">
-    <table id="boss-table">
-      <thead><tr><th>Boss</th><th class="num">Respawn</th><th class="num">Lv</th><th class="num">HP</th><th>Map</th><th>Nearest town</th></tr></thead>
+    <table id="boss-board">
+      <thead><tr><th>Boss</th><th>Where</th><th class="num">Respawn</th><th>Your channels</th><th>Record a kill</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
+  <div class="card" style="margin-top:12px">
+    <div class="boss-form">
+      <label>Killed (min ago)<input type="number" id="boss-ago" min="0" step="1" placeholder="0"></label>
+      <label class="chk"><input type="checkbox" id="boss-sound"> Beep 1 minute before and when a boss can spawn</label>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">"Killed (min ago)" is for a kill you saw earlier: it applies to the next kill you record. The 1-hour bosses can come back from 60 minutes after the kill, and players see them by about 120, so a card says "can spawn any minute" in between and "should be up" after. Timers stay in this browser. Browsers slow timers in hidden tabs, so a beep can come up to a minute late there.</p>
+  </div>
+  <h3>Your timers</h3>
+  <div class="boss-timers" id="boss-timers"></div>
   <p class="small muted" id="boss-source"></p>
 </section>
 
@@ -2754,30 +2756,37 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 
   // ---------- Boss timers: respawn timers from the datamine (farmdata.js bosses); kills are kept in this browser ----------
   function renderBosses() {
-    var F = window.FARM_DATA, B = F && F.bosses, tbody = document.querySelector("#boss-table tbody");
-    if (!B || !B.length) { tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">No boss data yet.</td></tr>"; return; }
+    var F = window.FARM_DATA, B = F && F.bosses, board = document.querySelector("#boss-board tbody");
+    if (!B || !B.length) { board.innerHTML = "<tr><td colspan=\"5\" class=\"muted\">No boss data yet.</td></tr>"; return; }
     function hm(sec) { var h = Math.floor(sec / 3600), m = Math.round(sec % 3600 / 60); return (h ? h + " h" : "") + (m ? (h ? " " : "") + m + " min" : ""); }
     // The datamine's map marks are internal names; the Forgotten Hollow boss map has no name yet.
     var TOWN = { Rith: "Lith Harbor", KerningCity: "Kerning City", ForgottenHollow: "Forgotten Hollow", Dungeon: "Sleepywood dungeon" };
-    B.forEach(function (b) { b.spawns.forEach(function (s) { s.town = TOWN[s.town] || s.town; if (!s.n) s.n = "unnamed map" + (s.town ? " in " + s.town : ""); }); });
-    tbody.innerHTML = B.map(function (b) {
-      return b.spawns.map(function (s) {
-        return "<tr" + (s.inRelease ? "" : " class=\"thin\"") + "><td><strong>" + esc(b.n) + "</strong></td><td class=\"num\"><strong>" + hm(s.timer) + "</strong></td><td class=\"num\">" + b.lv +
-          "</td><td class=\"num\">" + fmt(b.hp) + "</td><td>" + (s.inRelease ? esc(s.n) + (s.st ? " <span class=\"muted\">(" + esc(s.st) + ")</span>" : "") : "<span class=\"muted\">its map is not in the release data</span>") +
-          "</td><td>" + esc(s.town || "") + "</td></tr>";
-      }).join("");
-    }).join("");
-    document.getElementById("boss-source").textContent = "Respawn timers, maps and stats from the OSMS Data Explorer datamine (each boss map's own spawn timer). Bosses with no spawn map in the release, like Crimson Balrog and Faust, are left out.";
-
     var spawns = [], byKey = {};
-    B.forEach(function (b) { b.spawns.forEach(function (s) { if (s.inRelease && s.timer) { var x = { key: b.id + "|" + s.id, b: b, s: s }; spawns.push(x); byKey[x.key] = x; } }); });
-    if (!spawns.length) return;
-    var pick = document.getElementById("boss-pick"), chEl = document.getElementById("boss-ch"), agoEl = document.getElementById("boss-ago");
-    var lateEl = document.getElementById("boss-late"), soundEl = document.getElementById("boss-sound"), list = document.getElementById("boss-timers");
-    pick.innerHTML = spawns.map(function (x) { return "<option value=\"" + x.key + "\">" + esc(x.b.n) + " (Lv " + x.b.lv + "), " + esc(x.s.n) + "</option>"; }).join("");
-    pick.value = byKey[store.get("boss.pick", "")] ? store.get("boss.pick", "") : spawns[0].key;
-    chEl.value = store.get("boss.ch", "");
-    lateEl.value = store.get("boss.late", 0) || "";
+    B.forEach(function (b) {
+      b.spawns.forEach(function (s) {
+        s.town = TOWN[s.town] || s.town;
+        if (!s.n) s.n = "unnamed map" + (s.town ? " in " + s.town : "");
+        s.from = (s.from || "").split(" / ").filter(function (n) { return n && !/^\d+$/.test(n); }).join(" / ");
+        // Players report the 1-hour bosses coming back 60 to 120 minutes after a kill (NiaMeowDB boss pages).
+        s.win = s.timer === 3600 ? 7200 : 0;
+        if (s.inRelease && s.timer) { var x = { key: b.id + "|" + s.id, b: b, s: s }; spawns.push(x); byKey[x.key] = x; }
+      });
+    });
+    function where(s) {
+      return [s.st, s.from ? "from " + s.from : "", s.town && s.n.indexOf(s.town) < 0 ? "near " + s.town : ""].filter(Boolean).join(", ");
+    }
+    var lastCh = store.get("boss.ch", "");
+    board.innerHTML = spawns.map(function (x) {
+      return "<tr data-key=\"" + x.key + "\"><td><strong>" + esc(x.b.n) + "</strong><div class=\"small muted\">Lv " + x.b.lv + ", " + fmt(x.b.hp) + " HP</div></td>" +
+        "<td class=\"bb-where\"><strong>" + esc(x.s.n) + "</strong><small>" + esc(where(x.s)) + "</small></td>" +
+        "<td class=\"num\"><strong>" + hm(x.s.timer) + "</strong>" + (x.s.win ? "<div class=\"small muted\">up to " + hm(x.s.win) + "</div>" : "") + "</td>" +
+        "<td><div class=\"bb-status\"></div><a class=\"small\" href=\"https://gmscmegaphone.com/?q=" + encodeURIComponent(x.b.n.toLowerCase()) + "\" target=\"_blank\" rel=\"noopener\">Megaphone sightings</a></td>" +
+        "<td><div class=\"bb-rec\"><input type=\"text\" inputmode=\"numeric\" placeholder=\"Ch\" aria-label=\"Channel for " + esc(x.b.n) + "\" value=\"" + esc(lastCh) + "\">" +
+        "<button type=\"button\" class=\"btn\">Killed</button></div></td></tr>";
+    }).join("");
+    document.getElementById("boss-source").textContent = "Respawn timers, maps, exits and stats from the OSMS Data Explorer datamine (each boss map's own spawn timer); the 60 to 120 minute window is what players report on NiaMeowDB's boss pages. Bosses with no spawn map in the release, like Crimson Balrog and Faust, are left out.";
+
+    var agoEl = document.getElementById("boss-ago"), soundEl = document.getElementById("boss-sound"), list = document.getElementById("boss-timers");
     soundEl.checked = store.get("boss.sound", true);
     var timers = store.get("boss.timers", []).filter(function (t) { return byKey[t.k]; });
     var seen = {}, fired = {}, actx = null;
@@ -2799,38 +2808,55 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       var s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
       return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0");
     }
+    // One place decides a timer's state, for the board chips and the cards alike.
+    function state(t, now) {
+      var d = due(t), late = byKey[t.k].s.win ? (byKey[t.k].s.win - byKey[t.k].s.timer) * 1000 : 0;
+      if (now < d) return { k: d - now <= 60000 ? "soon" : "wait", count: mmss(d - now), chip: "Ch " + (t.ch || "?") + " in " + mmss(d - now), sub: "can spawn at " + clock(d) };
+      if (late && now < d + late) return { k: "open", count: "Can spawn any minute", chip: "Ch " + (t.ch || "?") + " can spawn now", sub: "players see it by about " + clock(d + late) };
+      return { k: "up", count: "Should be up", chip: "Ch " + (t.ch || "?") + " should be up", sub: "unless someone got it: could spawn from " + clock(d) };
+    }
     function save() { store.set("boss.timers", timers); }
     function build() {
       timers.sort(function (a, b) { return due(a) - due(b); });
       list.innerHTML = timers.length ? timers.map(function (t, i) {
         var x = byKey[t.k];
         return "<div class=\"card boss-timer\" data-i=\"" + i + "\"><div class=\"bt-head\"><strong>" + esc(x.b.n) + "</strong><span class=\"pill\">Ch " + esc(t.ch || "?") + "</span></div>" +
-          "<div class=\"small muted\">" + esc(x.s.n) + ", killed " + clock(t.t) + "</div><div class=\"bt-count\"></div><div class=\"bt-sub small muted\"></div>" +
+          "<div class=\"small muted\">" + esc(x.s.n) + " (" + esc(where(x.s)) + "), killed " + clock(t.t) + "</div><div class=\"bt-count\"></div><div class=\"bt-sub small muted\"></div>" +
           "<div class=\"bt-actions\"><button type=\"button\" data-act=\"again\">Killed again</button><button type=\"button\" data-act=\"del\">Remove</button></div></div>";
-      }).join("") : "<p class=\"muted\">No timers yet. Pick a boss, type the channel and press Killed.</p>";
+      }).join("") : "<p class=\"muted\">No kills recorded yet. Type a channel on a boss's row above and press Killed.</p>";
       tick();
     }
     function tick() {
-      var now = Date.now(), late = (parseInt(lateEl.value, 10) || 0) * 60000;
+      var now = Date.now();
+      // Board: every recorded channel of each boss, soonest first.
+      board.querySelectorAll("tr[data-key]").forEach(function (tr) {
+        var k = tr.getAttribute("data-key"), mine = timers.filter(function (t) { return t.k === k; }), cell = tr.querySelector(".bb-status");
+        cell.innerHTML = mine.length ? mine.map(function (t) { var s = state(t, now); return "<span class=\"bb-chip " + s.k + "\">" + esc(s.chip) + "</span>"; }).join("") :
+          "<span class=\"small muted\">No kill recorded. Go check the map.</span>";
+      });
       list.querySelectorAll(".boss-timer").forEach(function (card) {
         var t = timers[+card.getAttribute("data-i")];
         if (!t) return;
-        var d = due(t), id = t.k + "|" + t.ch + "|" + t.t, state, cnt = card.querySelector(".bt-count"), sub = card.querySelector(".bt-sub");
-        if (now < d) { seen[id] = 1; state = d - now <= 60000 ? "soon" : "wait"; cnt.textContent = mmss(d - now); sub.textContent = "can spawn at " + clock(d); }
-        else if (late && now < d + late) { state = "open"; cnt.textContent = "Can spawn now"; sub.textContent = "window open until about " + clock(d + late); }
-        else { state = "up"; cnt.textContent = "Up, or someone got it"; sub.textContent = "could spawn from " + clock(d) + ", " + mmss(now - d) + " ago"; }
-        card.className = "card boss-timer " + state;
+        var s = state(t, now), d = due(t), id = t.k + "|" + t.ch + "|" + t.t;
+        card.querySelector(".bt-count").textContent = s.count;
+        card.querySelector(".bt-sub").textContent = s.sub;
+        card.className = "card boss-timer " + s.k;
+        if (now < d) seen[id] = 1;
         if (soundEl.checked && seen[id]) {
-          if (state === "soon" && !fired[id + "s"]) { fired[id + "s"] = 1; beep(1); }
+          if (s.k === "soon" && !fired[id + "s"]) { fired[id + "s"] = 1; beep(1); }
           if (now >= d && !fired[id]) { fired[id] = 1; beep(3); }
         }
       });
     }
-    document.getElementById("boss-add").addEventListener("click", function () {
+    board.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".bb-rec .btn");
+      if (!b) return;
+      var tr = b.closest("tr[data-key]"), ch = tr.querySelector("input").value.trim(), ago = parseInt(agoEl.value, 10) || 0;
       audio();
-      var ago = parseInt(agoEl.value, 10) || 0;
-      timers.push({ k: pick.value, ch: chEl.value.trim(), t: Date.now() - ago * 60000 });
-      store.set("boss.pick", pick.value); store.set("boss.ch", chEl.value.trim());
+      // Killed again on the same channel replaces that channel's timer.
+      timers = timers.filter(function (t) { return !(t.k === tr.getAttribute("data-key") && t.ch === ch); });
+      timers.push({ k: tr.getAttribute("data-key"), ch: ch, t: Date.now() - ago * 60000 });
+      store.set("boss.ch", ch);
       agoEl.value = ""; save(); build();
     });
     list.addEventListener("click", function (ev) {
@@ -2840,7 +2866,6 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       if (b.getAttribute("data-act") === "del") timers.splice(i, 1); else timers[i].t = Date.now();
       audio(); save(); build();
     });
-    lateEl.addEventListener("input", function () { store.set("boss.late", parseInt(lateEl.value, 10) || 0); tick(); });
     soundEl.addEventListener("change", function () { store.set("boss.sound", soundEl.checked); if (soundEl.checked) { audio(); beep(1); } });
     build();
     setInterval(tick, 1000);

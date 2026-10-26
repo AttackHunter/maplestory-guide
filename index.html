@@ -728,41 +728,35 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   <p class="small muted" id="buy-source"></p>
 
   <h2>Market prices</h2>
-  <p class="lead">Player prices seen in game, next to what an NPC pays. Early-launch prices move fast; NPC prices never change, so they are the floor.</p>
+  <p class="lead">Player prices from real sales, next to what an NPC pays. NPC prices never change, so they are the floor.</p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>Item</th><th class="num">NPC pays</th><th class="num">Player price seen</th><th>Seen</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Item</th><th class="num">NPC pays</th><th class="num">Player price now</th><th class="num">Two weeks ago</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><strong>Leather</strong></td><td class="num">10</td><td class="num"><strong>150</strong></td><td>8 Oct 2026</td><td>Drops from Pigs and Ribbon Pigs, among others. Crafters buy it: 5 make one Processed Leather, and Arcforge uses 3 per Processed Parchment</td></tr>
-        <tr><td><strong>Processed Leather</strong></td><td class="num">10</td><td class="num muted">not seen yet</td><td></td><td>Leatherworking Lv 1: 5 Leather + 100 mesos. Used in 101 recipes, including the Steel Titans and Bronze Igor claws (10 to 40 each)</td></tr>
+        <tr><td><strong>Leather</strong></td><td class="num">10</td><td class="num"><strong id="lth-now">?</strong></td><td class="num" id="lth-then">?</td><td>Drops from Pigs and Ribbon Pigs, among others. Crafters buy it: 5 make one Processed Leather, and Arcforge uses 3 per Processed Parchment</td></tr>
+        <tr><td><strong>Processed Leather</strong></td><td class="num">10</td><td class="num"><strong id="plth-now">?</strong></td><td class="num" id="plth-then">?</td><td>Leatherworking Lv 1: 5 Leather + 100 mesos. Used in 101 recipes, including the Steel Titans and Bronze Igor claws (10 to 40 each)</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="card rec" style="margin-top:14px">
-    <strong>Leather at 150:</strong>
-    <ul class="tight">
-      <li><strong>Selling:</strong> sell it. That is 15 times the NPC price, and it will drop as more players farm Pigs.</li>
-      <li><strong>Buying:</strong> only to level Leatherworking or for a recipe you need. One Processed Leather costs 5 x 150 + 100 = <strong>850 mesos</strong>, for an item the NPC buys back for 10.</li>
-    </ul>
-  </div>
-  <p class="small muted">NPC prices and recipes from NiaMeowDB: <a href="https://meowdb.com/msclassic/item-db/396" target="_blank" rel="noopener">Leather</a>, <a href="https://meowdb.com/msclassic/item-db/311" target="_blank" rel="noopener">Processed Leather</a>. Its drop list comes from the old game's tables, so treat it as a guide. NiaMeowDB's players report Leather at 125 to 749, median 255 (11 reports to 8 Oct), so 250 is a fair listing.</p>
+  <div class="card rec" style="margin-top:14px" id="lth-rec"></div>
+  <p class="small muted">Player prices from MesoWatch real sales, refreshed every 3 hours. NPC prices and recipes from NiaMeowDB: <a href="https://meowdb.com/msclassic/item-db/396" target="_blank" rel="noopener">Leather</a>, <a href="https://meowdb.com/msclassic/item-db/311" target="_blank" rel="noopener">Processed Leather</a>. Its drop list comes from the old game's tables, so treat it as a guide.</p>
 
   <h2>Ores</h2>
-  <p class="lead"><strong>Garnet is the only ore worth over 1,000: it sells for about 1,599.</strong> Everything else sells for 200 to 500. List at the typical price, or near the low end of "most sales" to sell fast. Hover a bar for details.</p>
+  <p class="lead" id="ore-lead">Ore prices from real sales, refreshed every 3 hours. Hover a bar for details.</p>
   <div class="card ore-card">
     <div class="ore-head">
       <div class="ore-title">Ore sale prices</div>
-      <div class="ore-sub">Classic World · first 3 days · <span id="ore-total"></span> ore sales seen</div>
+      <div class="ore-sub">Windia · <span id="ore-when"></span> · <span id="ore-total"></span> ore sales in the last 7 days</div>
     </div>
     <div class="ore-legend small muted">
-      <span><i class="lg-bar"></i>Typical sale price</span>
-      <span><i class="lg-range"></i>Where most sales land</span>
+      <span><i class="lg-bar"></i>Typical sale price now</span>
+      <span><i class="lg-range"></i>Change since two weeks ago</span>
     </div>
     <div id="ore-chart" role="list"></div>
     <div id="ore-tip" class="ore-tip" hidden></div>
   </div>
-  <p class="small muted">Sale prices and counts from the MesoWatch chart of the first 3 days (actual sales, not asking prices). NPC prices from NiaMeowDB item pages, e.g. <a href="https://meowdb.com/msclassic/item-db/413" target="_blank" rel="noopener">Bronze Ore</a>. Black Crystal Ore had no sales in that chart, but the NPC pays 500 for it, so never sell it for less.</p>
+  <p class="small muted">Daily sale prices from MesoWatch real sales (not asking prices), refreshed every 3 hours. NPC prices from NiaMeowDB item pages, e.g. <a href="https://meowdb.com/msclassic/item-db/413" target="_blank" rel="noopener">Bronze Ore</a>. When an ore sells for no more than the NPC pays, sell it to the NPC.</p>
 
   <h2>NX items for mesos</h2>
   <p class="lead" id="nx-lead">Loading price data...</p>
@@ -1815,25 +1809,29 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     });
   }
 
-  // ---------- ore price chart (MesoWatch, first 3 days of sales) ----------
-  var ORES = [
-    { name: "Garnet Ore", typ: 1599, lo: 1000, hi: 2199, sold: 594, npc: 40, gem: "#c0262d" },
-    { name: "Aquamarine Ore", typ: 500, lo: 399, hi: 800, sold: 245, npc: 40, gem: "#2f7de1" },
-    { name: "Diamond Ore", typ: 400, lo: 300, hi: 500, sold: 109, npc: 240, gem: "#d6dde8" },
-    { name: "Iron Ore", typ: 399, lo: 299, hi: 500, sold: 1034, npc: 20, gem: "#8e9bb0" },
-    { name: "Amethyst Ore", typ: 333, lo: 262, hi: 500, sold: 80, npc: 200, gem: "#b0306e" },
-    { name: "Sapphire Ore", typ: 300, lo: 250, hi: 399, sold: 99, npc: 120, gem: "#5aa0e6" },
-    { name: "Mithril Ore", typ: 299, lo: 200, hi: 350, sold: 295, npc: 40, gem: "#3fb6c9" },
-    { name: "Gold Ore", typ: 299, lo: 220, hi: 399, sold: 89, npc: 60, gem: "#e8b923" },
-    { name: "Topaz Ore", typ: 299, lo: 200, hi: 399, sold: 68, npc: 80, gem: "#e9d33a" },
-    { name: "Opal Ore", typ: 299, lo: 230, hi: 400, sold: 52, npc: 160, gem: "#a9cdb6" },
-    { name: "Emerald Ore", typ: 288, lo: 200, hi: 374, sold: 119, npc: 80, gem: "#19a99a" },
-    { name: "Silver Ore", typ: 280, lo: 199, hi: 350, sold: 149, npc: 80, gem: "#b9bcc2" },
-    { name: "Bronze Ore", typ: 250, lo: 199, hi: 399, sold: 555, npc: 20, gem: "#c08060" },
-    { name: "Orihalcon Ore", typ: 200, lo: 150, hi: 299, sold: 55, npc: 100, gem: "#d44fc0" },
-    { name: "Adamantium Ore", typ: 199, lo: 142, hi: 299, sold: 28, npc: 60, gem: "#f07a1e" }
-  ];
+  // ---------- ore price chart (daily real sales from price-history.js, NPC prices from prices.js) ----------
+  var ORE_GEMS = {
+    "Black Crystal Ore": "#3a3a46", "Garnet Ore": "#c0262d", "Aquamarine Ore": "#2f7de1", "Diamond Ore": "#d6dde8",
+    "Iron Ore": "#8e9bb0", "Amethyst Ore": "#b0306e", "Sapphire Ore": "#5aa0e6", "Mithril Ore": "#3fb6c9",
+    "Gold Ore": "#e8b923", "Topaz Ore": "#e9d33a", "Opal Ore": "#a9cdb6", "Emerald Ore": "#19a99a",
+    "Silver Ore": "#b9bcc2", "Bronze Ore": "#c08060", "Orihalcon Ore": "#d44fc0", "Adamantium Ore": "#f07a1e"
+  };
+  var ORES = [], ORE_DAY = "";
   function fmt(n) { return Number(n).toLocaleString("en-US"); }
+  // One row per ore: today's median (yesterday's when today has under 30 sales so far), the median 14 days back, 7-day sales.
+  function oreRows() {
+    var H = window.PRICE_HISTORY, D = window.PRICE_DATA, npc = {};
+    if (!H || !H.items) return [];
+    ((D && D.items) || []).forEach(function (i) { npc[i.name] = i.npc || 0; });
+    return Object.keys(ORE_GEMS).map(function (name) {
+      var h = H.items[name];
+      if (!h || !h.length) return null;
+      var k = h[h.length - 1][1] >= 30 || h.length < 2 ? h.length - 1 : h.length - 2;
+      ORE_DAY = (H.dates && H.dates[k]) || ORE_DAY;
+      return { name: name, typ: h[k][0], then: h[0][0], sold: h.slice(-7).reduce(function (s, d) { return s + d[1]; }, 0),
+        npc: npc[name] || 0, gem: ORE_GEMS[name] };
+    }).filter(Boolean).sort(function (a, b) { return b.typ - a.typ; });
+  }
   function gemSvg(c) {
     return "<svg width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" aria-hidden=\"true\">" +
       "<path d=\"M3 16 L12 22 L21 16 L19 12 L5 12 Z\" fill=\"#7d828c\" stroke=\"rgba(0,0,0,.35)\" stroke-width=\".8\"/>" +
@@ -1841,26 +1839,63 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "<path d=\"M7 3 L12 8.5 L17 3 Z\" fill=\"rgba(255,255,255,.5)\"/>" +
       "<path d=\"M3 8.5 L12 8.5 L12 18 Z\" fill=\"rgba(0,0,0,.14)\"/></svg>";
   }
+  // Leather block on the Market tab: today's and two-weeks-ago medians, and whether crafting Processed Leather pays.
+  function renderLeather() {
+    var H = window.PRICE_HISTORY, rec = document.getElementById("lth-rec");
+    if (!H || !H.items || !rec) return;
+    function day(name) {
+      var h = H.items[name];
+      if (!h || !h.length) return null;
+      var k = h[h.length - 1][1] >= 30 || h.length < 2 ? h.length - 1 : h.length - 2;
+      return { now: h[k][0], then: h[0][0] };
+    }
+    var l = day("Leather"), p = day("Processed Leather");
+    if (!l) return;
+    document.getElementById("lth-now").textContent = fmt(l.now);
+    document.getElementById("lth-then").textContent = fmt(l.then);
+    if (p) { document.getElementById("plth-now").textContent = fmt(p.now); document.getElementById("plth-then").textContent = fmt(p.then); }
+    var cost = 5 * l.now + 100;
+    rec.innerHTML = "<strong>Leather at " + fmt(l.now) + ":</strong><ul class=\"tight\">" +
+      "<li><strong>Selling:</strong> sell it. That is " + Math.round(l.now / 10) + " times the NPC price" + (l.now < l.then ? ", and it has fallen from " + fmt(l.then) + " in two weeks as more players farm Pigs" : "") + ".</li>" +
+      "<li><strong>Crafting:</strong> one Processed Leather costs 5 x " + fmt(l.now) + " + 100 = <strong>" + fmt(cost) + " mesos</strong>" +
+      (p ? " and sells for about " + fmt(p.now) + ", " + (p.now * 0.97 > cost ? "so crafting it to sell makes about " + fmt(Math.round(p.now * 0.97 - cost)) + " each after the store fee." : "so crafting it to sell loses money. Only craft to level Leatherworking or for a recipe you need.") : ".") + "</li></ul>";
+  }
   function renderOres() {
     var host = document.getElementById("ore-chart");
     if (!host) return;
-    var MAX = 2250, TICKS = [0, 500, 1000, 1500, 2000];
+    ORES = oreRows();
+    if (!ORES.length) { host.innerHTML = "<p class=\"small muted\">Ore prices are missing. Reload the page in a minute.</p>"; return; }
+    var top = Math.max.apply(null, ORES.map(function (o) { return Math.max(o.typ, o.then); }));
+    var step = [50, 100, 200, 250, 500, 1000, 2000].filter(function (s) { return top / s <= 5; })[0] || 5000;
+    var MAX = Math.ceil(top / step) * step, TICKS = [];
+    for (var t = 0; t < MAX; t += step) TICKS.push(t);
     function pct(v) { return (v / MAX * 100).toFixed(2) + "%"; }
     var total = ORES.reduce(function (s, o) { return s + o.sold; }, 0);
     document.getElementById("ore-total").textContent = fmt(total);
+    document.getElementById("ore-when").textContent = ORE_DAY ? "sales on " + new Date(ORE_DAY + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "latest sales";
+    // the lead sentence follows the data: the top ore, the biggest fall, and the ones the NPC beats
+    var drop = ORES.slice().sort(function (a, b) { return (a.typ / a.then) - (b.typ / b.then); })[0];
+    var toNpc = ORES.filter(function (o) { return o.npc && o.npc >= o.typ; }).map(function (o) { return o.name.replace(" Ore", ""); });
+    document.getElementById("ore-lead").innerHTML = "<strong>" + esc(ORES[0].name) + " is the most valuable ore: about " + fmt(ORES[0].typ) + ".</strong> " +
+      (drop && drop.typ < drop.then * 0.7 ? esc(drop.name.replace(" Ore", "")) + " fell from " + fmt(drop.then) + " to " + fmt(drop.typ) + " in two weeks. " : "") +
+      (toNpc.length ? "The NPC pays as much or more for " + esc(toNpc.join(", ")) + ", so sell those to the NPC. " : "") +
+      "Hover a bar for details.";
     var grid = TICKS.map(function (t) { return "<i class=\"grid\" style=\"left:" + pct(t) + "\"></i>"; }).join("");
     var html = "<div class=\"ore-axis\" aria-hidden=\"true\"><span class=\"ax-name\">Ore</span><div class=\"ax-ticks\">" +
       TICKS.map(function (t) { return "<span style=\"left:" + pct(t) + "\">" + fmt(t) + "</span>"; }).join("") +
       "</div><span class=\"ax-price\">Typical price</span></div>";
     html += ORES.map(function (o, i) {
-      var label = o.name + ": typical sale " + fmt(o.typ) + " mesos, most sales " + fmt(o.lo) + " to " + fmt(o.hi) + ", " + fmt(o.sold) + " sold, NPC pays " + fmt(o.npc);
+      var npcWins = o.npc && o.npc >= o.typ;
+      var lo = Math.min(o.typ, o.then), hi = Math.max(o.typ, o.then);
+      var label = o.name + ": typical sale " + fmt(o.typ) + " mesos, " + fmt(o.then) + " two weeks ago, " + fmt(o.sold) + " sold in 7 days, NPC pays " + fmt(o.npc);
       return "<div class=\"ore-row" + (i === 0 ? " hot" : "") + "\" role=\"listitem\" tabindex=\"0\" data-i=\"" + i + "\" aria-label=\"" + esc(label) + "\">" +
-        "<div class=\"ore-name\">" + gemSvg(o.gem) + "<div><b>" + esc(o.name) + "</b><small>most sales: " + fmt(o.lo) + " to " + fmt(o.hi) + " · NPC " + fmt(o.npc) + "</small></div></div>" +
+        "<div class=\"ore-name\">" + gemSvg(o.gem) + "<div><b>" + esc(o.name) + "</b><small>2 weeks ago: " + fmt(o.then) + " · NPC " + fmt(o.npc) +
+          (npcWins ? " · <b>sell to NPC</b>" : "") + "</small></div></div>" +
         "<div class=\"ore-track\">" + grid +
           "<span class=\"bar\" style=\"width:" + pct(o.typ) + "\"></span>" +
-          "<span class=\"rng\" style=\"left:" + pct(o.lo) + ";width:" + ((o.hi - o.lo) / MAX * 100).toFixed(2) + "%\"></span>" +
+          "<span class=\"rng\" style=\"left:" + pct(lo) + ";width:" + ((hi - lo) / MAX * 100).toFixed(2) + "%\"></span>" +
         "</div>" +
-        "<div class=\"ore-price\"><b>" + fmt(o.typ) + "</b><small>" + fmt(o.sold) + " sold</small></div>" +
+        "<div class=\"ore-price\"><b>" + fmt(o.typ) + "</b><small>" + fmt(o.sold) + " sold, 7 days</small></div>" +
       "</div>";
     }).join("");
     host.innerHTML = html;
@@ -1868,13 +1903,14 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     var tip = document.getElementById("ore-tip");
     var card = host.closest(".ore-card");
     function show(o, x, y) {
+      var change = Math.round((o.typ / o.then - 1) * 100);
       tip.innerHTML = "<b>" + esc(o.name) + "</b><dl>" +
-        "<dt>Typical sale</dt><dd>" + fmt(o.typ) + "</dd>" +
-        "<dt>Most sales</dt><dd>" + fmt(o.lo) + " to " + fmt(o.hi) + "</dd>" +
-        "<dt>Sold, first 3 days</dt><dd>" + fmt(o.sold) + "</dd>" +
+        "<dt>Typical sale now</dt><dd>" + fmt(o.typ) + "</dd>" +
+        "<dt>Two weeks ago</dt><dd>" + fmt(o.then) + "</dd>" +
+        "<dt>Change</dt><dd>" + (change > 0 ? "+" : "") + change + "%</dd>" +
+        "<dt>Sold, last 7 days</dt><dd>" + fmt(o.sold) + "</dd>" +
         "<dt>NPC pays</dt><dd>" + fmt(o.npc) + "</dd>" +
-        "<dt>Sale vs NPC</dt><dd>" + Math.round(o.typ / o.npc) + "x</dd>" +
-        "<dt>Quick sale at</dt><dd>" + fmt(o.lo) + "</dd></dl>";
+        "<dt>Best way</dt><dd>" + (o.npc && o.npc >= o.typ ? "Sell to the NPC" : "Sell in the FM (" + (o.npc ? Math.round(o.typ / o.npc) + "x NPC" : "no NPC price") + ")") + "</dd></dl>";
       tip.hidden = false;
       var cr = card.getBoundingClientRect();
       var w = tip.offsetWidth, h = tip.offsetHeight;
@@ -2906,6 +2942,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   renderChecklist();
   renderPuzzles();
   renderOres();
+  renderLeather();
   renderSell();
   renderNx();
   renderBuy();

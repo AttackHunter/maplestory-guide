@@ -772,6 +772,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   <div class="sell-controls">
     <div class="seg" role="group" aria-label="Crate" id="nx-crate-pick"></div>
   </div>
+  <p class="small muted" id="nx-crate-note" hidden></p>
   <div class="tbl-wrap sell-wrap">
     <table id="nx-crate">
       <thead><tr><th>Item</th><th class="num">Chance</th><th class="num">Sells for</th><th class="num">Asking</th><th class="num">Sales</th></tr></thead>
@@ -2308,7 +2309,23 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "Pumpkin Suit": 2, "Ragged Gomushin": 2, "Skull Gloves": 2, "Skull T-Shirt": 2, "Stealth Suit": 2, "Tiger Mask": 2, "White Bandage": 2,
       "Witch Clothes": 2, "Witch Hat": 2, "Grey Skull Overall": 2.5, "Red Skull Overall": 2.5, "Black Leather Boots": 3,
       "Black Shoes of Death": 3, "Bone Buckled Slacks": 3, "Dark Enamel Suit": 3, "Dark Suit": 3, "Ghost Costume": 3, "Scream Mask": 3,
-      "Skull Beanie": 3 } }
+      "Skull Beanie": 3 },
+      // Launch-day asks, no sales yet: [cheapest player-store ask, lowest NiaMeowDB sell offer]. Shown until real sales replace them.
+      launch: { at: "28 Oct, 11:40", asks: {
+      "Tiger Mask": [35000, null], "Prisoner Top": [29999, 150000], "Prisoner Pants": [49999, 55555], "Brown Bandage": [39999, null],
+      "Scream Mask": [49999, 150000], "Skull T-Shirt": [150000, null], "Bone Buckled Slacks": [49999, 69999], "Skull Beanie": [55555, null],
+      "Dark Suit": [100000, 190000], "Dark Enamel Suit": [39999, null], "Black Leather Boots": [75000, 60000],
+      "Black Bandage": [39999, 140000], "Skull Patch": [400000, null], "Grey Skull Overall": [99999, null],
+      "Red Skull Overall": [15000, null], "Skull Gloves": [45000, null], "Black Coat of Death": [75000, null], "Ghost Suit": [99999, null],
+      "Black Shoes of Death": [39999, null], "Hat of Death": [75000, null], "Ragged Gomushin": [24000, 22222], "Witch Hat": [99999, null],
+      "Ghost Costume": [75000, null], "Witch Clothes": [49999, null], "Witch's Broomstick": [250000, null], "Gargoyle Wings": [150000, null],
+      "Battle Scar": [400000, null], "Mummy Hat": [49999, 55555], "Mummy Suit": [150000, null], "Mummy Mask": [99999, null],
+      "White Bandage": [50000, null], "Devil Wings": [175000, null], "Blue Chinese Undead Hat": [25000, null],
+      "Blue Chinese Undead Costume": [29999, null], "Maple-Stein Head": [49999, null], "Maple-Stein Face": [150000, 140000],
+      "Demon Goblin": [30000, null], "Pumpkin Hat": [40000, 60000], "Pumpkin Headgear": [150000, null], "Pumpkin Suit": [28000, null],
+      "Glowing Pumpkin Basket": [100000, null], "Evil Skull": [250000, null], "Cat Soul": [999999, 400000], "Devilish Horns": [199999, null],
+      "Devil Horns": [150000, null], "Dark Devil Hat": [100000, null], "Coffin of Gloom": [100000, null], "Count Dracula Cape": [null, null],
+      "Iljimae Mask": [69696, null], "Stealth Suit": [69999, null] } } }
   };
   var CRATE_NAME = "Founder's Mystery Fashion Crate";
   // Latest sale price with enough sales behind it: last day (5+ sales), else last 3 days, else 14 days (3+ sales).
@@ -2414,18 +2431,32 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     pickEl.innerHTML = Object.keys(CRATES).map(function (k) { return "<button data-k=\"" + k + "\" aria-pressed=\"" + (pick === k) + "\">" + CRATES[k].label + "</button>"; }).join("");
     function drawCrate() {
       var C = CRATES[pick];
-      var rows = Object.keys(C.rates).map(function (n) { var i = byName[n]; return { name: n, rate: C.rates[n], i: i, v: i ? i.val.v : null }; });
+      // Launch asks fill the Asking column while an item has no live ask of its own: one price, or a low-high range across sites.
+      var launchAsk = function (n) {
+        var a = C.launch && C.launch.asks[n] ? C.launch.asks[n].filter(function (p) { return p; }) : [];
+        return a.length ? { lo: Math.min.apply(null, a), hi: Math.max.apply(null, a) } : null;
+      };
+      var rows = Object.keys(C.rates).map(function (n) {
+        var i = byName[n];
+        return { name: n, rate: C.rates[n], i: i, v: i ? i.val.v : null, la: i && i.ask[0] ? null : launchAsk(n) };
+      });
+      var askOf = function (r) { return (r.i ? r.i.ask[0] : 0) || (r.la ? r.la.hi : 0); };
       rows.sort(function (x, y) {
         if ((x.v == null) !== (y.v == null)) return x.v == null ? 1 : -1;
-        return x.v == null ? ((y.i ? y.i.ask[0] : 0) || 0) - ((x.i ? x.i.ask[0] : 0) || 0) : y.v - x.v;
+        return x.v == null ? askOf(y) - askOf(x) : y.v - x.v;
       });
       document.querySelector("#nx-crate tbody").innerHTML = rows.map(function (r) {
         var i = r.i, thin = r.v == null;
         var sold = !i ? "no reports yet" : thin ? (i.d14[1] ? fmt(i.d14[0]) + " <span class=\"small\">(" + i.d14[1] + " sale" + (i.d14[1] > 1 ? "s" : "") + ")</span>" : "no sales yet") : "<strong>" + fmt(r.v) + "</strong>";
+        var ask = i && i.ask[0] ? fmt(i.ask[0]) : r.la ? fmt(r.la.lo) + (r.la.hi > r.la.lo ? " to " + fmt(r.la.hi) : "") : "";
         return "<tr" + (thin ? " class=\"thin\"" : "") + "><td><strong>" + esc(r.name) + "</strong></td><td class=\"num\">" + r.rate + "%</td>" +
-          "<td class=\"num\">" + sold + "</td><td class=\"num\">" + (i && i.ask[0] ? fmt(i.ask[0]) : "") + "</td>" +
+          "<td class=\"num\">" + sold + "</td><td class=\"num\">" + ask + "</td>" +
           "<td class=\"num\">" + (i && !thin ? i.val.n + " <span class=\"small muted\">" + i.val.w + "</span>" : "") + "</td></tr>";
       }).join("");
+      var note = document.getElementById("nx-crate-note");
+      note.hidden = !C.launch;
+      if (C.launch) note.innerHTML = "<strong>No sales yet.</strong> \"Asking\" shows launch-day asks from " + esc(C.launch.at) +
+        ": the cheapest player-store ask and the lowest NiaMeowDB sell offer, as a range when they differ. Asks, not sales: real prices usually settle lower as the week goes on.";
     }
     pickEl.querySelectorAll("button").forEach(function (b) {
       b.addEventListener("click", function () {

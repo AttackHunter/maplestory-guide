@@ -2639,8 +2639,17 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       if (p && p.median > 0 && p.reports >= 5) return { v: p.median, npc: false };
       return { v: d.npc || 0, npc: true };
     }
+    // Only drops players have reported seeing in Classic count (NiaMeowDB's "Drops (MS Classic)" list, carried in
+    // sources.js). The OSMLib table is old MapleSEA data and lists drops Classic does not have, such as Arc Staff from
+    // Copper Drake, so it only supplies the chance. Without sources.js every reference drop counts, as before.
+    var haveSeen = Object.keys(SRC).length > 0;
+    function seenInClassic(mob, item) {
+      if (!haveSeen) return true;
+      return (SRC[item] || []).some(function (e) { return e.k === "d" && e.m === mob && e.v; });
+    }
     var mobs = F.mobs.filter(function (m) { return m.id < BOSS_FROM; }).map(function (m) {
-      var parts = m.drops.map(function (d) { var w = worth(d); return { n: d.n, r: d.r, v: w.v, npc: w.npc, ev: d.r * w.v }; })
+      var parts = m.drops.filter(function (d) { return seenInClassic(m.n, d.n); })
+        .map(function (d) { var w = worth(d); return { n: d.n, r: d.r, v: w.v, npc: w.npc, ev: d.r * w.v }; })
         .sort(function (a, b) { return b.ev - a.ev; });
       var ev = parts.reduce(function (s, x) { return s + x.ev; }, 0);
       var maps = m.maps.filter(function (p) { return p.n; });
@@ -2733,6 +2742,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     var when = new Date(D.fetchedAt);
     var whenTxt = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
     document.getElementById("farm-source").innerHTML = "Values are the average drop worth, not a promise: rare drops (1 in thousands) are averaged in, so a short session usually earns less. " +
+      (haveSeen ? "Only drops players have reported seeing in Classic count (NiaMeowDB's Classic drop list); old MapleSEA drops nobody has seen here are left out. " : "") +
       "Drop chances are OSMLib reference rates from old MapleSEA, which Classic appears to use; Classic's real rates may differ. " +
       "Prices are " + (isMesoWatch(D) ? esc(D.sourceName || "MesoWatch real sales") : "NiaMeowDB") + ", read " + esc(whenTxt) + "; a drop with under 5 sales counts at its NPC price. " +
       "Mesos the monsters drop are not included. Each character's list leaves out maps where most of the value sits on monsters with 300+ defense against its attacks, " +

@@ -426,6 +426,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     <button role="tab" data-tab="market" style="--tc: var(--maple)"><span class="dot"></span>Market</button>
     <button role="tab" data-tab="farm" style="--tc: var(--maple)"><span class="dot"></span>Farming</button>
     <button role="tab" data-tab="money" style="--tc: var(--ok)"><span class="dot"></span>Make money</button>
+    <!-- my-store --><button role="tab" data-tab="store" style="--tc: var(--ok)"><span class="dot"></span>My store</button><!-- /my-store -->
     <button role="tab" data-tab="bosses" style="--tc: var(--bandit)"><span class="dot"></span>Boss timers</button>
     <button role="tab" data-tab="launch" style="--tc: var(--maple)"><span class="dot"></span>Launch &amp; 70+</button>
   </div>
@@ -870,6 +871,10 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   <p class="small muted" id="money-source"></p>
 </section>
 
+<!-- my-store -->
+<!-- MY STORE: Sergei's own store profit, drawn by store.js from store-sales.js. Not in the shared copies. -->
+<section class="tab" id="tab-store" style="--c: var(--ok)"></section>
+<!-- /my-store -->
 <!-- BOSS TIMERS -->
 <section class="tab" id="tab-bosses" data-c="bandit">
   <h2>Boss timers</h2>
@@ -2969,7 +2974,8 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     setInterval(tick, 1000);
   }
 
-  var TABS = ["overview", "bandit", "assassin", "il", "kpq", "cash", "market", "farm", "money", "bosses", "launch"];
+  // Read the tab list from the nav, so a tab missing from the nav can never be shown.
+  var TABS = Array.prototype.map.call(document.querySelectorAll("nav.tabs button[data-tab]"), function (b) { return b.getAttribute("data-tab"); });
   function show(tab) {
     if (TABS.indexOf(tab) < 0) tab = "overview";
     document.querySelectorAll("nav.tabs button").forEach(function (b) {
@@ -3004,5 +3010,9 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   show(location.hash ? location.hash.slice(1) : store.get("tab", "overview"));
 })();
 </script>
+<!-- my-store -->
+<script src="store-sales.js"></script>
+<script src="store.js"></script>
+<!-- /my-store -->
 </body>
 </html>

@@ -1,9 +1,9 @@
 // Sergei's own store sales (AttackHunter, Windia CH3 FM5), read by the "My store" tab.
-// Private: build-share.mjs leaves this file and the tab out of the shared Artifact and the public site.
+// On the public site since 2026-11-11 (Sergei asked); build-share.mjs still leaves it out of the shared Artifact.
 // One row per sale: [day (Israel time), item, sold for each, paid each (null = cost unknown, 0 = a drop), qty].
 // Profit = sold for x 0.97 (the 3% store fee) - paid. Claude appends a row each time Sergei reports a sale.
 window.STORE_SALES = {
-  updated: "2026-11-11T11:00",
+  updated: "2026-11-11T23:12",
   fee: 0.03,
   sales: [
     ["2026-10-24", "Mystery Palette Exchange Coupon", 115000, null, 1],
@@ -87,6 +87,7 @@ window.STORE_SALES = {
     ["2026-11-11", "Brown Guiltian, INT 3", 77999, 40000, 1],
     ["2026-11-11", "Sky Blue Cat Beanie", 209999, 200000, 1],
     ["2026-11-11", "Work Gloves, crit 2, 4/5", 69999, 118888, 1],
-    ["2026-11-11", "Cape Accuracy Scroll: Lesser", 59999, 40000, 4]
+    ["2026-11-11", "Cape Accuracy Scroll: Lesser", 59999, 40000, 4],
+    ["2026-11-11", "Squishy Shoes, clean, LUK +2", 149999, 134999, 1]
   ]
 };

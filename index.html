@@ -15,6 +15,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%81%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="market.css">
 <style>
 :root {
   --bg: #f5f3ee;
@@ -675,31 +676,59 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 
 <!-- MARKET -->
 <section class="tab" id="tab-market">
-  <h2>What to sell (live prices)</h2>
-  <p class="lead" id="sell-lead">Loading price data...</p>
-  <div class="grid g3" id="sell-highlights"></div>
-  <h3>All priced items</h3>
-  <div class="sell-controls">
-    <input type="search" id="sell-q" placeholder="Search an item, e.g. Pure Water" aria-label="Search items">
-    <div class="seg" role="group" aria-label="Item type" id="sell-cats"></div>
-    <label class="small muted">Sort
+  <div class="market-hero">
+    <p class="market-kicker">Free Market / Price desk</p>
+    <h2>Know what your loot is worth.</h2>
+    <p class="lead" id="sell-lead">Loading price data...</p>
+    <div class="market-meta" id="market-meta" role="status"></div>
+    <div class="market-jumps" aria-label="Market shortcuts">
+      <button type="button" class="market-button primary" data-market-jump="market-browse">Find an item</button>
+      <button type="button" class="market-button" data-market-jump="market-buy">Check a deal</button>
+      <button type="button" class="market-button" data-market-jump="market-resources">Ores &amp; materials</button>
+      <button type="button" class="market-button" data-market-jump="market-nx">NX prices</button>
+    </div>
+  </div>
+  <div class="market-section-head"><h3 id="market-browse" tabindex="-1">Explore the market</h3><span class="small muted">Save items with the star. Kept on this browser.</span></div>
+  <div class="market-workspace">
+  <div class="market-search">
+    <label for="sell-q">Find an item</label>
+    <input type="search" id="sell-q" placeholder="Search items, e.g. gloves attack" maxlength="160" aria-label="Search items" aria-controls="sell-table" autocomplete="off">
+    <button type="button" class="market-button" id="sell-clear">Clear</button>
+  </div>
+  <div class="seg" role="group" aria-label="Item type" id="sell-cats"></div>
+  <div class="market-controls">
+    <label>Sort by
       <select id="sell-sort">
         <option value="price">Highest price</option>
         <option value="x">Most above NPC price</option>
-        <option value="reports">Most reports</option>
-        <option value="name">Name</option>
+        <option value="reports">Most sales / reports</option>
+        <option value="rising">Biggest rise, 7 days</option>
+        <option value="falling">Biggest fall, 7 days</option>
+        <option value="name">Item name</option>
       </select>
     </label>
+    <label>Minimum sales / reports<select id="sell-min"><option value="0">Any sample size</option><option value="3">3 or more</option><option value="10">10 or more</option><option value="100">100 or more</option></select></label>
+    <button type="button" class="market-button watch-filter" id="sell-saved" aria-pressed="false">Saved items (0)</button>
+    <button type="button" class="market-button" id="sell-reset">Reset filters</button>
   </div>
+  <p class="market-results" id="sell-count" role="status" aria-live="polite"></p>
+  <p class="small muted">Swipe the table sideways on a small screen. Net amounts estimate the 3% store fee.</p>
   <div class="tbl-wrap sell-wrap">
     <table id="sell-table">
+      <caption class="sr-only">Market snapshot: item prices, trends, sources and sample counts</caption>
       <thead><tr><th>Item</th><th>Type</th><th>How to get</th><th class="num">Player price</th><th>Last 7 days</th><th class="num">NPC pays</th><th class="num">x NPC</th><th class="num">Reports</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
+  <div class="market-pagination">
+    <label class="small muted">Rows <select id="sell-size" aria-label="Rows per page"><option>25</option><option selected>50</option><option>100</option></select></label>
+    <div class="pages"><button type="button" class="market-button" id="sell-prev">Previous</button><span id="sell-page"></span><button type="button" class="market-button" id="sell-next">Next</button></div>
+  </div>
+  </div>
   <p class="small muted" id="sell-source"></p>
+  <details class="market-ideas"><summary>Quick selling ideas: drops, scrolls and supplies</summary><div class="grid g3" id="sell-highlights"></div></details>
 
-  <h2>Buying smarter</h2>
+  <h2 id="market-buy" tabindex="-1">Buying smarter</h2>
   <p class="lead">Check a shop's price before you buy, and see which gear fits your character right now.</p>
   <h3>Is this a good price?</h3>
   <div class="sell-controls">
@@ -715,6 +744,37 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       <div class="tbl-wrap"><table id="trend-table"><thead><tr><th>Day</th><th class="num">Average sale</th><th class="num">Sales</th></tr></thead><tbody></tbody></table></div>
     </details>
   </div>
+  <div class="market-calculator" id="market-calculator">
+    <h4>What would you keep after fees?</h4>
+    <p class="small muted">For standard items, selecting one fills its reference price. For gear, enter a resale price supported by matching rolls.</p>
+    <div class="market-calc-inputs">
+      <label>Sale price / unit<input type="number" id="calc-sale" min="0" step="1" placeholder="Mesos"></label>
+      <label>Quantity<input type="number" id="calc-quantity" min="1" max="999999" step="1" value="1"></label>
+      <label>Your cost / unit<input type="number" id="calc-cost" min="0" step="1" placeholder="0 only for drops"></label>
+      <label>Store fee (%)<input type="number" id="calc-fee" min="0" max="100" step="0.1" value="3"></label>
+    </div>
+    <div id="calc-output" class="market-calc-output" role="status" aria-live="polite">Enter a sale price to estimate proceeds.</div>
+    <p class="small muted">Estimate only. Sale price, buyer demand and in-game fee rounding may differ. Negative profit means a loss.</p>
+  </div>
+  <details class="market-ideas" id="flip-checklist">
+    <summary>Evaluate a flip with matching sales</summary>
+    <p class="small muted">Use the item and real shop price above, plus the quantity in the fee calculator. This is a manual worksheet. It does not scan live stores. For gear, every comparison needs the same roll and slots. Never include your own buys or unconfirmed sales.</p>
+    <div class="market-calc-inputs">
+      <label>Available mesos<input type="number" id="flip-budget" min="0" step="1" placeholder="Your current budget"></label>
+      <label>Listing seen (minutes ago)<input type="number" id="flip-age" min="0" step="1" placeholder="From the store feed"></label>
+      <label>Next competing ask / unit<input type="number" id="flip-ask" min="1" step="1" placeholder="Exclude this listing"></label>
+      <label>Confirmed sales per day<input type="number" id="flip-daily" min="0" step="1" placeholder="For this exact roll"></label>
+      <label>Remaining slots (gear)<input type="number" id="flip-slots" min="0" max="15" step="1" placeholder="Same as comparisons"></label>
+    </div>
+    <label for="flip-sales">Comparable unit sale prices, newest first (one per line, up to 10)</label>
+    <textarea id="flip-sales" rows="4" maxlength="300" placeholder="149999&#10;139999&#10;145000"></textarea>
+    <div class="market-checks">
+      <label><input type="checkbox" id="flip-roll"> I checked matching main stats, slots and relevant secondary stats</label>
+      <label><input type="checkbox" id="flip-bad-roll"> This gear's main stat is below its base</label>
+    </div>
+    <div class="card buy-verdict" id="flip-output" role="status" aria-live="polite">Enter an item and its real shop price above to begin.</div>
+    <p class="small muted">Conservative resale = lower of the newest 5 comparable sales' median and next competing ask minus 1. Use this as a reference, not an automatic starting price. Start high when comparable sales support it, then step down; never hide a loss. Prices below break-even lose mesos.</p>
+  </details>
   <h3>Gear for your character</h3>
   <div class="sell-controls">
     <div class="seg" role="group" aria-label="Character" id="buy-class"></div>
@@ -722,13 +782,13 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   </div>
   <div class="tbl-wrap sell-wrap">
     <table id="buy-gear">
-      <thead><tr><th>Item</th><th>Slot</th><th class="num">Lv</th><th>Stats</th><th>How to get</th><th class="num">Typical</th><th>Last 7 days</th><th class="num">Good buy at</th><th class="num">Reports</th></tr></thead>
+      <thead><tr><th>Item</th><th>Slot</th><th class="num">Lv</th><th>Stats</th><th>How to get</th><th class="num">Typical</th><th>Last 7 days</th><th class="num">80% reference</th><th class="num">Reports</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
   <p class="small muted" id="buy-source"></p>
 
-  <h2>Market prices</h2>
+  <h2 id="market-resources" tabindex="-1">Material prices</h2>
   <p class="lead">Player prices from real sales, next to what an NPC pays. NPC prices never change, so they are the floor.</p>
   <div class="tbl-wrap">
     <table>
@@ -759,7 +819,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
   </div>
   <p class="small muted">Daily sale prices from MesoWatch real sales (not asking prices), refreshed every 3 hours. NPC prices from NiaMeowDB item pages, e.g. <a href="https://meowdb.com/msclassic/item-db/413" target="_blank" rel="noopener">Bronze Ore</a>. When an ore sells for no more than the NPC pays, sell it to the NPC.</p>
 
-  <h2>NX items for mesos</h2>
+  <h2 id="market-nx" tabindex="-1">NX items for mesos</h2>
   <p class="lead" id="nx-lead">Loading price data...</p>
   <div class="grid g3" id="nx-cards"></div>
   <h3>Cash Shop items: NX cost vs what players pay</h3>
@@ -965,6 +1025,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 <script src="gamedata.js"></script>
 <script src="farmdata.js"></script>
 <script src="price-history.js"></script>
+<script src="market-tools.js"></script>
 <script src="sources.js"></script>
 <script>
 (function () {
@@ -2174,6 +2235,8 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     if (!document.getElementById("tab-market").classList.contains("active")) { history.replaceState(null, "", "#market"); show("market"); }
     var el = document.getElementById("buy-item");
     el.value = name;
+    document.getElementById("buy-price").value = "";
+    document.getElementById("calc-cost").value = "";
     el.dispatchEvent(new Event("input"));
     document.getElementById("buy-verdict").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -2192,7 +2255,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     }
     var items = D.items.filter(function (i) { return i.median != null; }).map(function (i) {
       return { name: i.name, median: i.median, reports: i.reports, npc: i.npc, sub: i.sub || "", type: i.type || "",
-        cat: sellCat(i), x: i.npc >= 2 ? i.median / i.npc : null, keep: KERNING_DONATIONS.indexOf(i.name) >= 0 };
+        cat: sellCat(i), trend: trendOf(i.name), x: i.npc >= 2 ? i.median / i.npc : null, keep: KERNING_DONATIONS.indexOf(i.name) >= 0 };
     });
     var when = new Date(D.fetchedAt);
     var whenTxt = isNaN(when) ? D.fetchedAt : when.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -2216,46 +2279,65 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       "<div class=\"card hl-card\"><h4>Food and other Use items</h4><p>At least 3 times the NPC price.</p><ol>" +
         food.map(function (i) { return li(i, Math.round(i.x) + "x NPC"); }).join("") + "</ol></div>";
 
-    // table controls
-    var state = { q: "", cat: store.get("sell.cat", "all"), sort: store.get("sell.sort", "price") };
-    var catsEl = document.getElementById("sell-cats");
-    catsEl.innerHTML = SELL_CATS.map(function (c) { return "<button data-cat=\"" + c[0] + "\" aria-pressed=\"" + (state.cat === c[0]) + "\">" + c[1] + "</button>"; }).join("");
-    var sortEl = document.getElementById("sell-sort");
-    sortEl.value = state.sort;
-    var qEl = document.getElementById("sell-q");
-    var tbody = document.querySelector("#sell-table tbody");
-    function draw() {
-      var q = state.q.trim().toLowerCase();
-      var rows = items.filter(function (i) {
-        return (state.cat === "all" || i.cat === state.cat) && (!q || i.name.toLowerCase().indexOf(q) >= 0);
-      });
-      rows.sort(function (a, b) {
-        // Items with 1-2 reports (often joke or stale listings) go after the well-reported ones.
-        if (state.sort !== "name" && (a.reports < 3) !== (b.reports < 3)) return a.reports < 3 ? 1 : -1;
-        if (state.sort === "x") return (b.x || 0) - (a.x || 0);
-        if (state.sort === "reports") return b.reports - a.reports;
-        if (state.sort === "name") return a.name.localeCompare(b.name);
-        return b.median - a.median;
-      });
-      tbody.innerHTML = rows.length ? rows.map(function (i) {
-        var thin = i.reports < 3;
-        return "<tr" + (thin ? " class=\"thin\"" : "") + "><td>" + nameBtn(i.name) + (i.keep ? "<span class=\"badge\">Kerning donation</span>" : "") + "</td>" +
-          "<td>" + esc(i.sub || i.type) + "</td>" + srcChips(i.name) +
-          "<td class=\"num\"><strong>" + fmt(i.median) + "</strong></td>" + trendCell(i.name) +
-          "<td class=\"num\">" + (i.npc == null ? "" : fmt(i.npc)) + "</td>" +
-          "<td class=\"num\">" + (i.x == null ? "" : Math.round(i.x) + "x") + "</td>" +
-          "<td class=\"num\">" + i.reports + (thin ? " (thin)" : "") + "</td></tr>";
-      }).join("") : "<tr><td colspan=\"8\" class=\"muted\">No priced item matches. Players may not have reported it yet.</td></tr>";
+    // Paginated browsing and a local watchlist use item names, not imported IDs,
+    // because source datasets can reuse numeric IDs for unrelated items.
+    var M = window.GuideMarket;
+    var saved = new Set(M.savedNames(store.get("market.saved", []), items));
+    var state = { q: String(store.get("sell.q", "")).slice(0,160), cat: store.get("sell.cat", "all"), sort: store.get("sell.sort", "price"), min: Number(store.get("sell.min", 0)), saved: store.get("sell.saved", false) === true, page: 1, size: Number(store.get("sell.size",50)) };
+    if (!SELL_CATS.some(function(c) { return c[0] === state.cat; })) state.cat = "all";
+    if (["price","x","reports","name","rising","falling"].indexOf(state.sort)<0) state.sort="price";
+    if ([0,3,10,100].indexOf(state.min)<0) state.min=0;
+    if ([25,50,100].indexOf(state.size)<0) state.size=50;
+    var catsEl=document.getElementById("sell-cats"), sortEl=document.getElementById("sell-sort"), qEl=document.getElementById("sell-q"), minEl=document.getElementById("sell-min"), savedEl=document.getElementById("sell-saved"), sizeEl=document.getElementById("sell-size");
+    var tbody=document.querySelector("#sell-table tbody"), prev=document.getElementById("sell-prev"), next=document.getElementById("sell-next");
+    catsEl.innerHTML=SELL_CATS.map(function(c) { return "<button type=\"button\" data-cat=\""+c[0]+"\" aria-pressed=\""+(state.cat===c[0])+"\">"+c[1]+"</button>"; }).join("");
+    qEl.value=state.q;sortEl.value=state.sort;minEl.value=String(state.min);sizeEl.value=String(state.size);
+    function draw(reset) {
+      if (reset) state.page=1;
+      var result=M.page(M.select(items,state,saved),state.page,state.size);state.page=result.number;
+      document.getElementById("sell-count").textContent=result.total ? result.start+"-"+result.end+" of "+fmt(result.total)+" items"+(state.saved ? " in your watchlist" : "") : "No matching items";
+      document.getElementById("sell-page").textContent="Page "+result.number+" of "+result.pages;
+      savedEl.textContent="Saved items ("+saved.size+")";savedEl.setAttribute("aria-pressed",String(state.saved));
+      prev.disabled=result.number<=1;next.disabled=result.number>=result.pages;
+      document.getElementById("sell-clear").disabled=!state.q;
+      tbody.innerHTML=result.rows.length ? result.rows.map(function(i) {
+        var thin=i.reports<3, watched=saved.has(i.name), net=M.proceeds(i.median,1,3);
+        return "<tr"+(thin ? " class=\"thin\"" : "")+"><td><div class=\"market-item\"><button type=\"button\" class=\"watch-toggle\" data-watch=\""+esc(i.name)+"\" aria-pressed=\""+watched+"\" aria-label=\""+(watched ? "Unsave " : "Save ")+esc(i.name)+"\">"+(watched ? "&#9733;" : "&#9734;")+"</button><div>"+nameBtn(i.name)+(i.keep ? "<span class=\"badge\">Kerning donation</span>" : "")+"</div></div></td>"+
+          "<td>"+esc(i.sub||i.type)+"</td>"+srcChips(i.name)+"<td class=\"num\"><strong>"+fmt(i.median)+"</strong>"+(net ? "<span class=\"market-net\">"+fmt(net.net)+" net est.</span>" : "")+"</td>"+trendCell(i.name)+
+          "<td class=\"num\">"+(i.npc==null ? "" : fmt(i.npc))+"</td><td class=\"num\">"+(i.x==null ? "" : Math.round(i.x)+"x")+"</td><td class=\"num\">"+fmt(i.reports)+(thin ? " (thin)" : "")+"</td></tr>";
+      }).join("") : "<tr><td colspan=\"8\" class=\"market-empty\"><strong>"+(state.saved && !saved.size ? "Your watchlist is empty." : "No items match these filters.")+"</strong><br><span class=\"muted\">"+(state.saved && !saved.size ? "Turn off Saved items and use a star to save an item." : "Try fewer search words or reset the filters.")+"</span></td></tr>";
     }
-    catsEl.querySelectorAll("button").forEach(function (b) {
-      b.addEventListener("click", function () {
-        state.cat = b.getAttribute("data-cat"); store.set("sell.cat", state.cat);
-        catsEl.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-        draw();
-      });
+    catsEl.addEventListener("click",function(ev) {
+      var button=ev.target.closest("button[data-cat]");if (!button) return;
+      state.cat=button.getAttribute("data-cat");store.set("sell.cat",state.cat);
+      catsEl.querySelectorAll("button").forEach(function(x) { x.setAttribute("aria-pressed",String(x===button)); });draw(true);
     });
-    sortEl.addEventListener("change", function () { state.sort = sortEl.value; store.set("sell.sort", state.sort); draw(); });
-    qEl.addEventListener("input", function () { state.q = qEl.value; draw(); });
+    sortEl.addEventListener("change",function() { state.sort=sortEl.value;store.set("sell.sort",state.sort);draw(true); });
+    qEl.addEventListener("input",function() { state.q=qEl.value;store.set("sell.q",state.q);draw(true); });
+    minEl.addEventListener("change",function() { state.min=Number(minEl.value);store.set("sell.min",state.min);draw(true); });
+    savedEl.addEventListener("click",function() { state.saved=!state.saved;store.set("sell.saved",state.saved);draw(true); });
+    sizeEl.addEventListener("change",function() { state.size=Number(sizeEl.value);store.set("sell.size",state.size);draw(true); });
+    document.getElementById("sell-clear").addEventListener("click",function() { qEl.value="";state.q="";store.set("sell.q","");draw(true);qEl.focus(); });
+    document.getElementById("sell-reset").addEventListener("click",function() {
+      state.q="";state.cat="all";state.sort="price";state.min=0;state.saved=false;
+      ["q","cat","sort","min","saved"].forEach(function(k) { store.set("sell."+k,state[k]); });
+      qEl.value="";sortEl.value="price";minEl.value="0";catsEl.querySelectorAll("button").forEach(function(x) { x.setAttribute("aria-pressed",String(x.getAttribute("data-cat")==="all")); });draw(true);
+    });
+    tbody.addEventListener("click",function(ev) {
+      var button=ev.target.closest("button[data-watch]");if (!button) return;
+      var name=button.getAttribute("data-watch");if (saved.has(name)) saved.delete(name);else if (saved.size<200) saved.add(name);else { document.getElementById("sell-count").textContent="Watchlist full: remove an item before saving another (200 maximum).";return; }
+      store.set("market.saved",Array.from(saved));draw(false);
+      // Preserve keyboard position after replacing the table rows.
+      var buttons=tbody.querySelectorAll("[data-watch]");for (var j=0;j<buttons.length;j++) if (buttons[j].getAttribute("data-watch")===name) { buttons[j].focus({preventScroll:true});break; }
+    });
+    function turn(delta) { state.page+=delta;draw(false);tbody.parentElement.parentElement.scrollTop=0; }
+    prev.addEventListener("click",function() { turn(-1); });next.addEventListener("click",function() { turn(1); });
+    document.querySelectorAll("[data-market-jump]").forEach(function(button) { button.addEventListener("click",function() {
+      var target=document.getElementById(button.getAttribute("data-market-jump"));target.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",block:"start"});target.focus({preventScroll:true});
+      if (target.id==="market-browse")qEl.focus({preventScroll:true});
+    }); });
+    var stamp=new Date(D.dataAt||D.fetchedAt), age=(Date.now()-stamp.getTime())/3600000;
+    document.getElementById("market-meta").textContent=(D.sourceName||D.source||"Market data")+" | "+(isNaN(stamp) ? "Update time unavailable" : "Snapshot "+stamp.toLocaleString())+(age>6 ? " | May be out of date" : "");
     draw();
 
     document.getElementById("sell-source").innerHTML = isMesoWatch(D) ?
@@ -2508,9 +2590,12 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
 
     // Price check
     var itemEl = document.getElementById("buy-item"), priceEl = document.getElementById("buy-price");
+    var quotedItem="";
     function check() {
       var it = byName[itemEl.value.trim().toLowerCase()];
-      var price = parseInt(priceEl.value, 10);
+      if (it && quotedItem!==it.name) {priceEl.value="";quotedItem=it.name;}
+      var price = priceEl.value.trim() ? Number(priceEl.value) : NaN;
+      if (!Number.isSafeInteger(price) || price < 0) price = NaN;
       if (!it && trendShown) showTrend("");
       if (!itemEl.value.trim()) { verdictEl.className = "card buy-verdict"; verdictEl.innerHTML = "<span class=\"muted\">Type an item and the price you see.</span>"; return; }
       if (!it) {
@@ -2522,8 +2607,8 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       }
       if (trendShown !== it.name) showTrend(it.name);
       var tr = trendOf(it.name), shop = shopFor(it.name);
-      var facts = "Players usually pay <strong>" + fmt(it.median) + "</strong>" + (it.npc != null ? ", the NPC pays " + fmt(it.npc) : "") +
-        ". Based on " + it.reports + " report" + (it.reports === 1 ? "" : "s") + (it.reports < 3 ? ", so treat it as a rough guide" : "") + "." +
+      var facts = (it.type === "Equip" ? "The item-wide price reference is <strong>" : "Players usually pay <strong>") + fmt(it.median) + "</strong>" + (it.npc != null ? ", the NPC pays " + fmt(it.npc) : "") +
+        (it.type === "Equip" ? ". This pools different rolls; verify matching stats and slots" : "") + ". Based on " + it.reports + " report" + (it.reports === 1 ? "" : "s") + (it.reports < 3 ? ", so treat it as a rough guide" : "") + "." +
         (tr && Math.abs(tr.pct) >= 3 ? " The price is <strong>" + (tr.pct > 0 ? "rising" : "falling") + "</strong>: " + trendTxt(tr) +
           " this week, recent sales about " + fmt(niceRound(tr.to)) + "." : tr ? " The price has been steady this week." : "");
       var shopTxt = shop ? " " + esc(shop.npc) + " in " + esc(shop.town) + " sells it for <strong>" + fmt(shop.p) + "</strong>." : "";
@@ -2535,11 +2620,49 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
       else if (r <= 1.0) { cls = "fair"; head = "Fair price."; }
       else if (r <= 1.25) { cls = "high"; head = "A bit high. Offer around " + fmt(niceRound(it.median * 0.9)) + "."; }
       else { cls = "bad"; head = "Overpriced: " + Math.round((r - 1) * 100) + "% over the usual price."; }
+      if (it.type === "Equip") { cls="fair";head="Gear: verify the roll and slots before buying. The item-wide average is not a same-roll valuation."; }
       verdictEl.className = "card buy-verdict " + cls;
       verdictEl.innerHTML = "<strong class=\"v-head\">" + esc(head) + "</strong> " + facts + shopTxt + howToGet(it.name);
     }
     itemEl.addEventListener("input", check);
     priceEl.addEventListener("input", check);
+
+    var saleEl=document.getElementById("calc-sale"), qtyEl=document.getElementById("calc-quantity"), costEl=document.getElementById("calc-cost"), feeEl=document.getElementById("calc-fee"), calcOut=document.getElementById("calc-output");
+    function calculate() {
+      var result=saleEl.value.trim() && qtyEl.value.trim() && feeEl.value.trim() ? window.GuideMarket.proceeds(saleEl.value,qtyEl.value,feeEl.value) : null;
+      var cost=costEl.value.trim() ? window.GuideMarket.proceeds(costEl.value,qtyEl.value,0) : null;
+      if (!result || !cost) { calcOut.textContent="Enter whole-meso prices, a positive whole quantity and a fee from 0 to 100%.";return; }
+      var profit=result.net-cost.gross;
+      calcOut.innerHTML="<span>Gross sale<strong>"+fmt(result.gross)+"</strong></span><span>Estimated fee<strong>"+fmt(result.fee)+"</strong></span><span class=\"net\">Net proceeds<strong>"+fmt(result.net)+"</strong></span><span>Estimated profit / loss<strong>"+(profit<0 ? "-" : "")+fmt(Math.abs(profit))+"</strong></span>";
+    }
+    [saleEl,qtyEl,costEl,feeEl].forEach(function(el) { el.addEventListener("input",calculate); });
+    var calculatorItem="";
+    itemEl.addEventListener("input",function() { var item=byName[itemEl.value.trim().toLowerCase()];if (item) { if (calculatorItem!==item.name)costEl.value="";calculatorItem=item.name;saleEl.value=item.type==="Equip" ? "" : String(item.median);calculate(); } });
+    priceEl.addEventListener("input",function() {costEl.value=priceEl.value;calculate();});
+
+    var flipFields=["budget","age","ask","daily","slots","sales","roll","bad-roll"].map(function(id){return document.getElementById("flip-"+id);});
+    var flipItem="";
+    function evaluateFlip() {
+      var item=byName[itemEl.value.trim().toLowerCase()], out=document.getElementById("flip-output");
+      if (!item) {out.className="card buy-verdict";out.textContent="Select a priced item above first.";return;}
+      if (flipItem!==item.name) {
+        ["age","ask","daily","slots","sales"].forEach(function(id){document.getElementById("flip-"+id).value="";});
+        document.getElementById("flip-roll").checked=false;document.getElementById("flip-bad-roll").checked=false;flipItem=item.name;
+      }
+      function number(id) {var value=document.getElementById("flip-"+id).value.trim();return value ? Number(value) : NaN;}
+      var raw=document.getElementById("flip-sales").value.trim();
+      var sales=raw ? raw.split(/\r?\n/).filter(function(line){return line.trim();}).map(function(line){return Number(line.replace(/,/g,"").trim());}) : [];
+      var excluded=/((Mystery|Signature).*(Hair|Face|Eye|Skin).*Coupon|Crate|Megaphone)/i.test(item.name) || /pet/i.test(item.sub||"") || /^(Pink Bunny|White Bunny|Brown Puppy|Brown Kitty|Black Kitty|Black Pig)$/.test(item.name);
+      var result=window.GuideMarket.flip({cost:priceEl.value.trim() ? Number(priceEl.value) : NaN,quantity:Number(qtyEl.value),sales:sales,nextAsk:number("ask"),age:number("age"),daily:number("daily"),budget:number("budget"),slots:number("slots"),gear:item.type==="Equip",rollChecked:document.getElementById("flip-roll").checked,badRoll:document.getElementById("flip-bad-roll").checked,excluded:excluded});
+      out.className="card buy-verdict "+(result.status==="skip" ? "bad" : result.status==="priority" ? "good" : "fair");
+      out.textContent=result.message;
+      if (result.resale!=null) {
+        var figures=document.createElement("p");figures.className="small";
+        figures.textContent="Conservative resale / unit: "+fmt(result.resale)+" | Estimated total profit: "+(result.profit<0 ? "-" : "")+fmt(Math.abs(result.profit))+" ("+result.roi.toFixed(1)+"%) | Break-even / unit: "+fmt(result.breakEven);
+        out.appendChild(figures);
+      }
+    }
+    flipFields.concat([itemEl,priceEl,qtyEl]).forEach(function(el){el.addEventListener("input",evaluateFlip);el.addEventListener("change",evaluateFlip);});
 
     // Gear for the chosen character, around the level set on its class tab
     var pick = store.get("buy.class", "bandit");
@@ -2590,7 +2713,7 @@ footer { color: var(--muted); font-size: 13px; padding: 24px 0 40px; border-top:
     document.querySelectorAll("nav.tabs button[data-tab=\"market\"]").forEach(function (b) { b.addEventListener("click", drawGear); });
 
     document.getElementById("buy-source").innerHTML = "Prices from " + (isMesoWatch(D) ? esc(D.sourceName || "MesoWatch real sales") : "NiaMeowDB") + ", read " + esc(whenTxt) +
-      ". \"Good buy at\" is 80% of the typical price. \"Last 7 days\" is the daily average sale price: the arrow compares the newest 2 days with sales to the oldest 2, and steady means within 3%" +
+      ". \"80% reference\" is 80% of the item-wide typical price, not a same-roll valuation. \"Last 7 days\" is the daily average sale price: the arrow compares the newest 2 days with sales to the oldest 2, and steady means within 3%" +
       (PH ? " (history to " + esc(dayLabel(PH.dates[PH.dates.length - 1])) + ")" : "") + ". Item levels, jobs and stats from the OSMS Data Explorer datamine. Greyed rows have under 3 " +
       (isMesoWatch(D) ? "sales" : "reports") + ". Some gear is male- or female-only, so check the tooltip before you pay. " + SRC_NOTE;
   }

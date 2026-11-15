@@ -3,7 +3,7 @@
 // One row per sale: [day (Israel time), item, sold for each, paid each (null = cost unknown, 0 = a drop), qty].
 // Profit = sold for x 0.97 (the 3% store fee) - paid. Claude appends a row each time Sergei reports a sale.
 window.STORE_SALES = {
-  updated: "2026-11-15T22:55",
+  updated: "2026-11-16T00:00",
   fee: 0.03,
   sales: [
     ["2026-10-24", "Mystery Palette Exchange Coupon", 115000, null, 1],
@@ -143,6 +143,7 @@ window.STORE_SALES = {
     ["2026-11-15", "Olympus, ATT 74, 0 slots", 1549999, 1350000, 1],
     ["2026-11-15", "Shinkita, ATT 70, 0 slots", 159999, 50000, 1],
     ["2026-11-15", "Shinkita, ATT 66, 6 slots", 74999, 42500, 1],
-    ["2026-11-15", "Serpent's Tongue, ATT 69, 4 slots", 79999, 50000, 1]
+    ["2026-11-15", "Serpent's Tongue, ATT 69, 4 slots", 79999, 50000, 1],
+    ["2026-11-16", "Steel Slain, ATT 30, 6 slots", 199999, 100000, 1]
   ]
 };

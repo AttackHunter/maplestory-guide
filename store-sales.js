@@ -141,6 +141,7 @@ window.STORE_SALES = {
     ["2026-11-15", "Arc Staff, crit 5, M.ATT 70, 7 slots", 139999, 77777, 1],
     ["2026-11-15", "Steel Pow, crit 3, DEX 6", 64999, 44444, 1],
     ["2026-11-15", "Olympus, ATT 74, 0 slots", 1549999, 1350000, 1],
-    ["2026-11-15", "Shinkita, ATT 70, 0 slots", 159999, 50000, 1]
+    ["2026-11-15", "Shinkita, ATT 70, 0 slots", 159999, 50000, 1],
+    ["2026-11-15", "Shinkita, ATT 66, 6 slots", 74999, 42500, 1]
   ]
 };

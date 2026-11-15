@@ -139,6 +139,6 @@ window.STORE_SALES = {
     ["2026-11-15", "Store spot, CH1 FM1", 70000, 0, 1],
     ["2026-11-15", "Cape Accuracy Scroll: Lesser", 51999, 40000, 1],
     ["2026-11-15", "Arc Staff, crit 5, M.ATT 70, 7 slots", 139999, 77777, 1],
-    ["2026-11-15", "Steel Pow, crit 3, DEX 6", 64999, 33333, 1]
+    ["2026-11-15", "Steel Pow, crit 3, DEX 6", 64999, 44444, 1]
   ]
 };

@@ -135,6 +135,7 @@ window.STORE_SALES = {
     ["2026-11-15", "Shinkita, ATT 66, 6 slots", 84999, 42500, 1],
     ["2026-11-15", "Wolbi Throwing Stars (500)", 2999, 1000, 6],
     ["2026-11-15", "Wolbi Throwing Stars (500)", 2999, 1000, 3],
-    ["2026-11-15", "Black Napoleon, LUK 3, ACC 4", 49999, 25555, 1]
+    ["2026-11-15", "Black Napoleon, LUK 3, ACC 4", 49999, 25555, 1],
+    ["2026-11-15", "Store spot, CH1 FM1", 70000, 0, 1]
   ]
 };

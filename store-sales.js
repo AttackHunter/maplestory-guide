@@ -122,6 +122,7 @@ window.STORE_SALES = {
     ["2026-11-14", "Black Napoleon, LUK 3, ACC 4", 49999, 25555, 1],
     ["2026-11-14", "Cape Accuracy Scroll: Lesser", 51999, 40000, 1],
     ["2026-11-15", "Serpent's Tongue, ATT 69, 7 slots", 189999, 140000, 1],
-    ["2026-11-15", "Black Napoleon, LUK 3, ACC 4", 49999, 25555, 1]
+    ["2026-11-15", "Black Napoleon, LUK 3, ACC 4", 49999, 25555, 1],
+    ["2026-11-15", "Black Jester (drop)", 2499, 0, 1]
   ]
 };

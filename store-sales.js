@@ -160,6 +160,6 @@ window.STORE_SALES = {
     ["2026-11-17", "Cape Accuracy Scroll: Lesser", 49999, 40000, 1],
     ["2026-11-17", "Shinkita A74, 0 slots", 499999, 400000, 1],
     ["2026-11-17", "Steel Pow, crit 3, DEX 6", 79999, 33333, 1],
-    ["2026-11-17", "Wolbi Throwing Stars (500)", 2999, 1000, 3]
+    ["2026-11-17", "Wolbi Throwing Stars (500)", 2499, 1000, 3]
   ]
 };

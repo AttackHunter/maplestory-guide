@@ -173,6 +173,7 @@ window.STORE_SALES = {
     ["2026-11-19", "Squishy Shoes +4", 99999, 123500, 1],
     ["2026-11-19", "Wolbi Throwing Stars (500)", 2999, 1000, 5],
     ["2026-11-19", "Blue Training Shirt (drop)", 1549, 0, 1],
-    ["2026-11-19", "Polearm (drop)", 2999, 0, 1]
+    ["2026-11-19", "Polearm (drop)", 2999, 0, 1],
+    ["2026-11-19", "Work Gloves", 1499, 0, 1]
   ]
 };

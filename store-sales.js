@@ -170,6 +170,7 @@ window.STORE_SALES = {
     ["2026-11-18", "Steel Slain A36, 0 slots", 769999, 520000, 1],
     ["2026-11-19", "The Nine Dragons A75, 7 slots", 699999, 559999, 1],
     ["2026-11-19", "The Nine Dragons A73, 7 slots", 199999, 149999, 1],
-    ["2026-11-19", "Squishy Shoes +4", 99999, 123500, 1]
+    ["2026-11-19", "Squishy Shoes +4", 99999, 123500, 1],
+    ["2026-11-19", "Wolbi Throwing Stars (500)", 2999, 1000, 5]
   ]
 };
